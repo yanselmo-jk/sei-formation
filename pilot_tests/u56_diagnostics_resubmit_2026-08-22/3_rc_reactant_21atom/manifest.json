@@ -1,0 +1,84 @@
+{
+ "purpose": "diagnostic (Track A item 2, 02_METHOD_SPEC.md 39.114(2)/39.115) -- NOT a production job, not wired into any plan Item, not submitted by this script",
+ "question": "genuine wavefunction/SCF instability vs. IRC-integrator/numerics artifact",
+ "falsifiability": "an internal instability (G16 reports the wavefunction unstable, reoptimises to a LOWER energy) supports real open-shell/near-degeneracy physics needing systematic reoptimization. NO instability (already a genuine local minimum in orbital space) FALSIFIES 'unstable wavefunction' and points to the IRC integrator/numerics instead (02_METHOD_SPEC.md 39.113(e)).",
+ "source": {
+  "source_kind": "certified_geometry_log",
+  "source_log": "/home/yanselmo/0_claude_projects/sei_formation/cpu_machine_pilot_results/sei_pilot_work/jobs/endpoint_prep_rc_reactant/endpoint_tight.log",
+  "mo_coefficient_warnings_first_last": [
+   {
+    "line": 897,
+    "kind": "alpha",
+    "value": 71.042737
+   },
+   {
+    "line": 9416,
+    "kind": "beta",
+    "value": 71.274487
+   }
+  ],
+  "n_mo_coefficient_warnings": 4
+ },
+ "geometry_file": "probe_point.xyz",
+ "deck_file": "stability_probe.gjf",
+ "deck_meta": {
+  "route": "#p nosymm wB97XD/gen scrf=(pcm,solvent=acetone,read) stable=opt Int(Grid=UltraFine)",
+  "mem_gb": 4,
+  "nprocshared": 1,
+  "n_structures": 1,
+  "chk_file": "stability_probe.chk",
+  "modredundant_lines": [],
+  "solvent_extra_input_lines": [
+   "eps=18.5"
+  ],
+  "solvent_deck_label": "[UNVERIFIED — cluster route smoke required]",
+  "level": "level3",
+  "level_label": "G-3",
+  "job_type": "stability_test",
+  "level_status": "✅ engineer RT-1b(§R16.6) 사양. ADR-032 composite 의 값싼 층.",
+  "basis_real_name": "def2-SVPD",
+  "basis_file": "inputs/basis/def2-SVPD.gbs",
+  "elements_in_molecule": [
+   "C",
+   "O",
+   "H",
+   "Li"
+  ],
+  "elements_in_basis": [
+   "H",
+   "Li",
+   "C",
+   "O",
+   "F",
+   "P"
+  ],
+  "elements_emitted": [
+   "C",
+   "O",
+   "H",
+   "Li"
+  ],
+  "has_ecp": false
+ },
+ "charge": 0,
+ "multiplicity": 2,
+ "level": "level3",
+ "level_label": "G-3",
+ "job_type": "stability_test",
+ "route": "#p nosymm wB97XD/gen scrf=(pcm,solvent=acetone,read) stable=opt Int(Grid=UltraFine)",
+ "route_syntax_status": "[NEEDS VERIFICATION, critic14] `stable=opt` has never been route-smoked -- sei_qc_smoke only ever builds sp/freq job_types. The functional/basis/solvent fragment WAS verified (every real production job this round used it), but the `stable=opt` keyword itself was not. Same unsmoked-keyword state as build_u56_ra_irc_recorrect_probe.py's restart route -- a malformed route fails at ~zero cost either way.",
+ "estimated_cost": "single point, stable=opt, 21 atoms, wB97XD/def2-SVPD, no opt/freq -- seconds to a few minutes on 1 core; negligible against the ~660-6,400 core-h a full DFT scan/IRC for this reaction costs",
+ "provenance": {
+  "package_name": "sei_pilot_package",
+  "package_version": "0.1.0",
+  "package_fingerprint": "b023132f4c2bc033",
+  "schema_version": "1.1",
+  "schema_base_version": "1.0",
+  "generated_at_utc": "2026-08-21T11:44:37Z",
+  "generated_at_epoch": 1787312677,
+  "python_version": "3.14.6",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "random_seed": null,
+  "invocation": "tools/build_u56_ra_stability_probe.py --geom-log /home/yanselmo/0_claude_projects/sei_formation/cpu_machine_pilot_results/sei_pilot_work/jobs/endpoint_prep_rc_reactant/endpoint_tight.log --out-dir /home/yanselmo/0_claude_projects/sei_formation/cpu_machine_pilot_results/u56_diagnostics_2026-08-21/3_rc_reactant_21atom"
+ }
+}

@@ -1,0 +1,43 @@
+#!/bin/sh
+#PBS -V
+#PBS -q normal
+#PBS -N sei_u56_dvv_r3_smoke
+#PBS -A gaussian
+#PBS -l select=1:ncpus=64:mpiprocs=1:ompthreads=64
+#PBS -l walltime=02:00:00
+# DVV escalation SMOKE, rung 3 (FALLBACK -- only if rung 2's SMOKE ALSO errors)
+# -- calcfc dropped, GradientOnly added. SCIENTIFICALLY UNDESIRABLE (discards
+# this project's available analytic Hessians) -- worth a second look from the
+# lead/user before spending real core-h here, not an automatic step after rung
+# 2 fails. (proposer13 §39.130, 02_METHOD_SPEC.md; engineer14 pricing §R39.86,
+# 03_COMPUTE_PLAN.md:19927-20035) -- THIRD-TIER BACKUP, staged alongside
+# Candidate B and the EulerPC escalation for one cluster round-trip, NOT a
+# promotion. Only run this if BOTH Candidate B AND the EulerPC escalation have
+# already run and failed their own checks (see the bundle README).
+#
+# Only reach this rung if the PREVIOUS rung's smoke ERRORED (a route-syntax
+# rejection specifically, not just an unfamiliar result).
+#
+# maxpoints=3 (not this tier's usual 100) -- engineer14 endorses this smoke
+# MORE strongly than EulerPC's (§R39.86): it buys THREE things at once --
+# route-syntax validation, an early real per-point-cost read, AND direct
+# evidence of whether stepsize=2 is honored at all under DVV's adaptive step
+# control (unknown -- HPC/EulerPC's StepSize semantics do not necessarily
+# transfer). recorrect=never is deliberately OMITTED for this whole tier
+# (proposer13 §39.130(2) -- ReCorrect's documented default is already Never for
+# "other integrators", and DVV has no predictor-corrector cycle for it to
+# control) -- do not add it.
+#
+# Walltime: 1-3 points x 1.0-10.9 core-h/pt = 1.0-32.7 core-h [ESTIMATE]
+# (engineer14 §R39.86) => ~0.94-10.2 min/pt, pessimistic ~0.5h for 3 points. 2h
+# is a >4x margin, generous for a syntax-check job with unknown startup
+# overhead under a genuinely unmeasured algorithm.
+set -u
+cd "${PBS_O_WORKDIR:-.}" || exit 1
+trap 'echo "[sei] SIGTERM $(date -u +%FT%TZ): dvv_r3_smoke killed before completion" >> dvv_r3_smoke_kill.marker; exit 1' TERM
+module load gaussian/g16.c01.linda 2>/dev/null || echo '[sei] module load gaussian/g16.c01.linda failed - continuing'
+echo "[sei] dvv_r3_smoke start $(date -u +%FT%TZ)"
+g16 < irc_dvv_rung3_smoke.gjf > irc_dvv_rung3_smoke.log 2>&1
+rc=$?
+echo "[sei] dvv_r3_smoke end $(date -u +%FT%TZ) rc=$rc"
+exit $rc

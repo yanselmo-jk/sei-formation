@@ -1,0 +1,41 @@
+#!/bin/sh
+#PBS -V
+#PBS -q normal
+#PBS -N sei_u56_eulerpc_smoke
+#PBS -A gaussian
+#PBS -l select=1:ncpus=64:mpiprocs=1:ompthreads=64
+#PBS -l walltime=01:00:00
+# EulerPC escalation SMOKE (proposer13 §39.129, 02_METHOD_SPEC.md; engineer14 pricing §R39.85,
+# 03_COMPUTE_PLAN.md:19779-19908) -- BACKUP TIER, staged for logistics alongside Candidate B
+# (one cluster round-trip), NOT a promotion. RUN THIS FIRST, before submit_eulerpc_full.pbs,
+# and ONLY if Candidate B (candidate_b_reverse_stepsize_2026-08-25/) has already run and its
+# own mandatory checks show it failed -- StepSize runs and is read first, unconditionally.
+#
+# Unlike Candidate B (where a 1-2 point smoke could never reach the arc 2.0-2.3 region that
+# matters and so was skipped), this tier's keyword COMBINATION itself
+# (EulerPC+recorrect=never+stepsize+maxpoints together) has never run anywhere in this
+# project -- proposer13 AND engineer14 both independently endorse a smoke here (§39.129,
+# §R39.85), for two compatible reasons: route-syntax validation at near-zero cost, and an
+# early real per-point-cost read before committing the full maxpoints=100 budget.
+#
+# Walltime: engineer14's §R39.85 (03_COMPUTE_PLAN.md:19832-19841) smoke estimate: 1-2 points
+# x 1.92-7.3 core-h/pt = 1.9-14.6 core-h => ~0.03-0.23h wall at 64 cores. 1h is a >4x margin
+# over the pessimistic ~14min ceiling -- generous for a 2-point job with unknown startup
+# overhead, while costing almost nothing in queue time if it fails fast (the point of a
+# smoke). Read manifest_eulerpc_smoke.json's mandatory_post_run_checks before trusting any
+# result, then proceed to submit_eulerpc_full.pbs only if the smoke's syntax/echo checks pass.
+#
+# Cores come from the deck's own %nprocshared=64 line (engineer14 §R39.82 §6's explicit
+# requirement, carried over unchanged for this tier -- no builder default; this deck was built
+# with --total-cores 64, verified in irc_eulerpc_smoke.gjf). GAUSS_NPROCSHARED is NOT a
+# Gaussian 16 variable and is deliberately absent here, same convention as every other script
+# in this project.
+set -u
+cd "${PBS_O_WORKDIR:-.}" || exit 1
+trap 'echo "[sei] SIGTERM $(date -u +%FT%TZ): eulerpc_smoke killed before completion" >> eulerpc_smoke_kill.marker; exit 1' TERM
+module load gaussian/g16.c01.linda 2>/dev/null || echo '[sei] module load gaussian/g16.c01.linda failed - continuing'
+echo "[sei] eulerpc_smoke start $(date -u +%FT%TZ)"
+g16 < irc_eulerpc_smoke.gjf > irc_eulerpc_smoke.log 2>&1
+rc=$?
+echo "[sei] eulerpc_smoke end $(date -u +%FT%TZ) rc=$rc"
+exit $rc

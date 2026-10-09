@@ -1,0 +1,285 @@
+--- /tmp/claude-1000/-home-yanselmo-0-claude-projects-sei-formation/294521f6-4432-4fde-8635-18d1b3c9a867/scratchpad/frozen/sei_pilot_cpu/sei_pilot/criteria/g16.py	2026-08-19 13:22:43.000000000 +0900
++++ src/pilot_package/sei_pilot/criteria/g16.py	2026-08-19 13:46:22.522681837 +0900
+@@ -177,18 +177,263 @@
+     return {"charge": int(m.group(1)), "multiplicity": int(m.group(2))}
+ 
+ 
+-def parse_route(text):
+-    """에코된 route line. 실제로 무엇을 계산했는지의 정본."""
+-    for line in (text or "").splitlines():
++# --- route echo: THE 70-COLUMN TRUNCATION DEFECT (B-1) -----------------------
++#
++# 🔴 RT-1 stored three routes that were **cut at exactly 70 characters with no
++#    marker**, and downstream code then read ABSENCE off them.
++#
++#    ts_qst2.log       len=70  '...opt=(qst2,calcfc,noeigen'      unbalanced '('
++#    irc_forward.log   len=70  '...irc=(calcfc,forward,maxp'      unbalanced '('
++#    irc_reverse.log   len=70  '...irc=(calcfc,reverse,maxp'      unbalanced '('
++#
++#    Four independent proofs that this is a fixed-width cut, not the real route:
++#      1. three DIFFERENT routes, all EXACTLY 70 chars
++#      2. all three end mid-token ('noeigen', 'maxp') with unbalanced parens
++#      3. 🔒 decisive: `freq` does not appear in the ts route, yet n_frequencies=27
++#         and imag_freq_cm=-105.0 were parsed FROM THAT SAME LOG.
++#         **The report refutes its own field.**
++#      4. [MEASURED, coder7] rebuilding the requested route from
++#         config/qc_levels.json's job_type templates and cutting it at 70 chars
++#         reproduces ALL THREE stored strings BYTE-FOR-BYTE. The ts tail that was
++#         lost is exactly 'test,maxcycles=100) freq' (94 -> 70).
++#
++#    CAUSE: Gaussian wraps its echoed route at this column inside the dashed
++#    block; the old parse_route() returned ONLY THE FIRST PHYSICAL LINE and
++#    stored it under the bare name "route". Nothing marked it.
++#
++# ⟹ The fix is BOTH halves:
++#    (a) reassemble the continuation lines, so we store the FULL route; and
++#    (b) 🔴 emit a completeness field ALONGSIDE it, and make asking
++#        "is keyword X absent?" RAISE when completeness is not established.
++#        (b) is the half that matters: (a) can silently regress, (b) cannot.
++#
++#: [MEASURED] RT-1, three routes, all cut here. Reproduced from the templates.
++ROUTE_ECHO_WRAP_COLUMNS = 70
++
++#: The echoed route block is delimited by a run of dashes. Reassembly stops there.
++RE_ROUTE_BLOCK_END = re.compile(r"^\s*-{4,}\s*$")
++
++#: Hard cap on continuation lines, so a log with no closing delimiter cannot
++#: swallow the whole file into "the route". Hitting the cap => NOT complete.
++ROUTE_ECHO_MAX_LINES = 8
++
++
++class RouteTruncatedError(RuntimeError):
++    """Raised when a caller asks a truncated/unverified route a question that
++    only a COMPLETE route can answer (i.e. "is this keyword absent?").
++
++    🔴 This RAISES rather than returning a flag on purpose. A returned flag is a
++    thing a caller may decline to read, and reading absence off the truncated
++    RT-1 route is exactly how `nosymm? False | freq? False` was believed.
++    """
++
++
++def _balanced(s):
++    """Parentheses balance of a route fragment. None if there is nothing to check."""
++    if s is None:
++        return None
++    depth = 0
++    for ch in s:
++        if ch == "(":
++            depth += 1
++        elif ch == ")":
++            depth -= 1
++            if depth < 0:
++                return False
++    return depth == 0
++
++
++def parse_route_echo(text):
++    """Reassemble the echoed route and REPORT ITS COMPLETENESS as data.
++
++    Returns a record whose field names carry the caveat (a name travels into
++    every downstream table; a docstring does not):
++
++        route_echoed                          str|None   full reassembled text
++        route_echoed_is_complete              True|False|None
++        route_echoed_line_count               int
++        route_echoed_char_length              int|None
++        route_echoed_first_line_char_length   int|None
++        route_echo_parentheses_balanced       bool|None
++        route_echo_terminated_by_block_rule   bool|None
++        route_echo_wrap_columns_assumed       int
++        route_echo_completeness_evidence      str
++        absence_of_a_keyword_may_not_be_read_from_this_route   bool
++
++    🔴 `route_echoed_is_complete` is None when NOTHING WAS CHECKED (no route
++    found at all) and False when it was checked and came back negative. They are
++    never interchanged.
++    """
++    rec = {
++        "route_echoed": None,
++        "route_echoed_is_complete": None,
++        "route_echoed_line_count": 0,
++        "route_echoed_char_length": None,
++        "route_echoed_first_line_char_length": None,
++        "route_echo_parentheses_balanced": None,
++        "route_echo_terminated_by_block_rule": None,
++        "route_echo_wrap_columns_assumed": ROUTE_ECHO_WRAP_COLUMNS,
++        "route_echo_completeness_evidence": "no route line found in this log",
++        "absence_of_a_keyword_may_not_be_read_from_this_route": True,
++    }
++    lines = (text or "").splitlines()
++    start = None
++    for i, line in enumerate(lines):
+         m = RE_ROUTE.match(line)
+         if m and len(m.group(1)) > 3:
+-            return ("#" + line.strip().lstrip("#")).strip()
++            start = i
++            break
++    if start is None:
++        return rec
++
++    first = ("#" + lines[start].strip().lstrip("#")).strip()
++    parts = [first]
++    terminated = False
++    for line in lines[start + 1:start + 1 + ROUTE_ECHO_MAX_LINES]:
++        if RE_ROUTE_BLOCK_END.match(line) or not line.strip():
++            terminated = True
++            break
++        parts.append(line.strip())
++    # G16 wraps at a column, not at a token boundary: 'noeigen' + 'test' must
++    # rejoin as 'noeigentest'. A line that was cut mid-token has no trailing
++    # space, so glue those two directly instead of inserting one.
++    joined = first
++    for p in parts[1:]:
++        if not p:
++            continue
++        if len(joined) >= ROUTE_ECHO_WRAP_COLUMNS and not joined.endswith(" "):
++            joined = joined + p
++        else:
++            joined = joined + " " + p
++
++    balanced = _balanced(joined)
++    rec["route_echoed"] = joined
++    rec["route_echoed_line_count"] = len([p for p in parts if p])
++    rec["route_echoed_char_length"] = len(joined)
++    rec["route_echoed_first_line_char_length"] = len(first)
++    rec["route_echo_parentheses_balanced"] = balanced
++    rec["route_echo_terminated_by_block_rule"] = terminated
++
++    if not terminated:
++        rec["route_echoed_is_complete"] = False
++        rec["route_echo_completeness_evidence"] = (
++            "the echoed route block was not closed by a delimiter within %d lines"
++            % ROUTE_ECHO_MAX_LINES)
++    elif balanced is False:
++        rec["route_echoed_is_complete"] = False
++        rec["route_echo_completeness_evidence"] = (
++            "unbalanced parentheses after reassembly (len=%d) - the echo is cut"
++            % len(joined))
++    else:
++        rec["route_echoed_is_complete"] = True
++        rec["route_echo_completeness_evidence"] = (
++            "reassembled %d echoed line(s), block closed by delimiter, "
++            "parentheses balanced" % rec["route_echoed_line_count"])
++    rec["absence_of_a_keyword_may_not_be_read_from_this_route"] = (
++        rec["route_echoed_is_complete"] is not True)
++    return rec
++
++
++def route_record_from_stored_string(value, source="stored report field"):
++    """Classify a route string that was ALREADY STORED by an older run.
++
++    🔴 `route_echoed_is_complete` is **never True** here, by construction. A bare
++    stored string carries no block context, so completeness cannot be
++    established from it - only REFUTED (unbalanced parens, or a length at the
++    wrap column). Everything else is None = NOT CHECKED, not "fine".
++
++    This is the function that must be used on `cpu_machine_pilot_results/`:
++    those three routes were written by the defective parser.
++    """
++    rec = {
++        "route_echoed": value,
++        "route_echoed_is_complete": None,
++        "route_echoed_line_count": 1 if value else 0,
++        "route_echoed_char_length": len(value) if isinstance(value, str) else None,
++        "route_echoed_first_line_char_length": (
++            len(value) if isinstance(value, str) else None),
++        "route_echo_parentheses_balanced": _balanced(value if isinstance(value, str) else None),
++        "route_echo_terminated_by_block_rule": None,
++        "route_echo_wrap_columns_assumed": ROUTE_ECHO_WRAP_COLUMNS,
++        "route_echo_completeness_evidence": (
++            "%s: a bare stored string has no block context; completeness can be "
++            "refuted but never established" % source),
++        "absence_of_a_keyword_may_not_be_read_from_this_route": True,
++    }
++    if not isinstance(value, str) or not value:
++        rec["route_echoed_line_count"] = 0
++        rec["route_echo_completeness_evidence"] = "%s: no route stored" % source
++        return rec
++    if rec["route_echo_parentheses_balanced"] is False:
++        rec["route_echoed_is_complete"] = False
++        rec["route_echo_completeness_evidence"] = (
++            "%s: unbalanced parentheses at len=%d - TRUNCATED"
++            % (source, len(value)))
++    elif len(value) >= ROUTE_ECHO_WRAP_COLUMNS:
++        rec["route_echoed_is_complete"] = False
++        rec["route_echo_completeness_evidence"] = (
++            "%s: len=%d reaches the %d-column echo wrap - TRUNCATED"
++            % (source, len(value), ROUTE_ECHO_WRAP_COLUMNS))
++    return rec
++
++
++def keyword_in_route(record, keyword):
++    """True / False / None for "does this route carry `keyword`?".
++
++    🔴 **None means CANNOT BE DETERMINED**, and it is returned whenever the
++    keyword is not found in a route whose completeness is not established.
++    Finding it is positive evidence regardless of truncation; NOT finding it in a
++    truncated route is no evidence at all.
++    """
++    text = (record or {}).get("route_echoed")
++    if not isinstance(text, str) or not text:
++        return None
++    if keyword.lower() in text.lower():
++        return True
++    if (record or {}).get("route_echoed_is_complete") is True:
++        return False
+     return None
+ 
+ 
++def require_keyword_known_absent(record, keyword, context=""):
++    """RAISE unless the route is complete AND the keyword is genuinely absent.
++
++    🔴 This exists so that "keyword X was not used" can never be asserted off a
++    truncated route again. Callers that only want to KNOW should call
++    `keyword_in_route` and handle None.
++    """
++    verdict = keyword_in_route(record, keyword)
++    if verdict is None:
++        raise RouteTruncatedError(
++            "cannot assert `%s` is absent%s: %s (route_echoed_is_complete=%r, "
++            "len=%r). Mark it [UNKNOWN - the stored route is truncated], which "
++            "is a different and more useful statement than \"absent\"."
++            % (keyword, (" (%s)" % context) if context else "",
++               (record or {}).get("route_echo_completeness_evidence"),
++               (record or {}).get("route_echoed_is_complete"),
++               (record or {}).get("route_echoed_char_length")))
++    if verdict is True:
++        raise RouteTruncatedError(
++            "`%s` IS PRESENT in the route%s - it is not absent."
++            % (keyword, (" (%s)" % context) if context else ""))
++    return None
++
++
++def parse_route(text):
++    """에코된 route line. 실제로 무엇을 계산했는지의 정본.
++
++    🔴 Returns the **fully reassembled** route (all echoed continuation lines),
++    not just the first physical line. See the B-1 block above.
++    ⚠ A bare string cannot carry its own completeness - callers that need to
++    reason about ABSENCE must use `parse_route_echo()` and its record.
++    """
++    return parse_route_echo(text)["route_echoed"]
++
++
+ def summarize(text):
+     """한 계산의 표준 요약. 회신 JSON에 그대로 실린다."""
+     term = parse_termination(text)
++    _route_echo = parse_route_echo(text)
+     scf = parse_scf(text)
+     opt = parse_opt_status(text)
+     tim = parse_timings(text)
+@@ -197,7 +442,13 @@
+         "normal_termination": term["normal"],
+         "failure_reason": term["reason"],
+         "failure_message": term["message"],
+-        "route": parse_route(text),
++        # 🔴 TWO FIELDS, NEVER ONE. `route_echoed` alone was read as authoritative
++        #    for a full second by the lead ("nosymm? False | freq? False") off a
++        #    string that had been cut at column 70. The companion field is not
++        #    decoration - it is the field that makes the first one readable.
++        "route_echoed": _route_echo["route_echoed"],
++        "route_echoed_is_complete": _route_echo["route_echoed_is_complete"],
++        "route_echo": _route_echo,
+         "charge_multiplicity": parse_charge_mult(text),
+         "scf": {k: scf[k] for k in ("max_cycles", "total_cycles",
+                                     "final_energy_hartree", "converged")},

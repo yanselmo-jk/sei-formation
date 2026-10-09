@@ -1,0 +1,19 @@
+#!/bin/sh
+#PBS -V
+#PBS -q normal
+#PBS -N sei_u56_diag_stage3
+#PBS -A gaussian
+#PBS -l select=1:ncpus=4:mpiprocs=1:ompthreads=4
+#PBS -l walltime=16:00:00
+# ADR-117. Stage 3 ONLY -- never bundle stage 4 into this job (a shared wall budget is
+# what killed PBS 23731675). Cores come from the deck's own %nprocshared=4 line;
+# GAUSS_NPROCSHARED is NOT a Gaussian 16 variable and must not be exported here.
+set -u
+cd "${PBS_O_WORKDIR:-.}/3_rc_reactant_21atom" || exit 1
+trap 'echo "[sei] SIGTERM $(date -u +%FT%TZ): stage3 killed before completion" >> stage3_kill.marker; exit 1' TERM
+module load gaussian/g16.c01.linda 2>/dev/null || echo '[sei] module load gaussian/g16.c01.linda failed - continuing'
+echo "[sei] stage3 start $(date -u +%FT%TZ)"
+g16 < stability_probe.gjf > stability_probe.log 2>&1
+rc=$?
+echo "[sei] stage3 end $(date -u +%FT%TZ) rc=$rc"
+exit $rc

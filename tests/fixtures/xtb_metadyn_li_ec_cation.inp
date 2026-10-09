@@ -1,0 +1,12 @@
+$md
+   time=5.0
+   step=1.0
+   temp=400.0
+   dump=250.0
+   shake=0
+   hmass=4
+$metadyn
+   save=10
+   kpush=0.05
+   alp=0.8
+$end

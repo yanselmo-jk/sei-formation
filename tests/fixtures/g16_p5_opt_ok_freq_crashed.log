@@ -1,0 +1,12 @@
+ [FIXTURE SLICE — NOT A COMPLETE G16 LOG]
+ Provenance: cpu_machine_pilot_results/.../jobs/P5/species/ec_s0_L2/job.log (returned tree).
+ Verbatim lines proving the defect: the opt half completed and printed Normal
+ termination, while the freq half never produced a single Frequencies block because
+ L1110 aborted on the EpsInf=0.0000 sentinel (§39.73).
+
+ NEqPCM:  Using equilibrium solvation (IEInf=0, Eps=  18.5000, EpsInf=   0.0000)
+ Optimization completed.
+    -- Stationary point found.
+ Normal termination of Gaussian 16 at Thu Aug 20 09:57:06 2026.
+ SCF Done:  E(RwB97XD) =  -342.424387669     A.U. after   12 cycles
+ (Enter /apps/commercial/G16/g16.linda.c01/l1110.exe)

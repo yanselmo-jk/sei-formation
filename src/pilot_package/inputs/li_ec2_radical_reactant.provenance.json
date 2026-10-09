@@ -1,0 +1,37 @@
+{
+ "purpose": "DFT two-stage endpoint certification (E21, R-C reactant)의 STARTING GEOMETRY. 끝단 그 자체가 아니다 — §39.38(d): a GFN2 structure is never an endpoint.",
+ "source_geometry": "inputs/p5_species/li_ec2_cation.xyz (closed-shell cation, P5 종)",
+ "state_change": {
+  "charge": "0 (unchanged)",
+  "electrons": "+1 (reduced radical)",
+  "multiplicity": 2,
+  "xtb_flags": "--gfn 2 --chrg 0 --uhf 1"
+ },
+ "kick": {
+  "method": "C-9-style out-of-plane, uniform +-0.25 Angstrom along z",
+  "seed": 20260820,
+  "floor_test": "§39.32(e)-2 applied at generation"
+ },
+ "optimiser": "vendored xtb 6.7.1 (edcfbbe), --opt tight, dev box, 2026-08-20",
+ "n_imag": 0,
+ "artefact": "data/gfn2_pes_precheck_20260820/07_rc_opt_kick/xtbopt.xyz",
+ "multi_seed_protocol": {
+  "_rule": "§39.42(a) CHANGE: >= 3 seeds, floor test, keep the LOWEST, report spread and basin count. n=6 measured by proposer7 (10_seed_basins/).",
+  "n_seeds": 6,
+  "energies_hartree": {
+   "s1": -41.683701485031,
+   "s2": -41.658500257225,
+   "s3": -41.683701581887,
+   "s4": -41.68369904475,
+   "s5": -41.683701190199,
+   "s20260820": -41.683702042557
+  },
+  "n_distinct_basins": 2,
+  "main_basin_spread_hartree": 3e-06,
+  "outlier": "s2, +0.686 eV, d(Li-O ethereal) 1.693 vs 1.753",
+  "selected": "s20260820 (the LOWEST of 6)",
+  "degeneracy_warning": "두 축퇴 basin 이 d(Li-O2)에서 0.9 A 다르다(2.72 vs 3.61) — O2 는 R-C 가 끊는 산소. ENDPOINT DEGENERACY DOES NOT IMPLY BARRIER DEGENERACY (§39.42(a)) ⟹ d(Li-O_break) covariate 필수 emit."
+ },
+ "_chemistry_review": "kick 진폭·charge/mult·seed 의 endpoint 인증 사용 가부는 proposer7 확인 중 (lead 2026-08-20) — 반려 시 이 파일과 sidecar 를 함께 회수하라.",
+ "packaged_by": "coder10, 2026-08-20 (lead ruling Q1)"
+}

@@ -1,0 +1,62 @@
+{
+ "_doc": "IRC 끝점 동일성 판정의 2층 그래프 설정 (02_METHOD_SPEC.md §12.3).",
+ "_why_a_file": "ADR-001: species 목록·규칙·파라미터는 코드가 아니라 데이터로 분리한다. 새 염(LiFSI 등)이나 새 양이온이 들어와도 코드를 고치지 않는다.",
+ "_schema_version": "1.0",
+ "layer_C": {
+  "_doc": "공유결합 층. 양이온은 여기서 제외된다.",
+  "elements": [
+   "C",
+   "H",
+   "O",
+   "F",
+   "P",
+   "N",
+   "S",
+   "B",
+   "Si",
+   "Cl"
+  ],
+  "bond_tolerance": 1.25,
+  "radii_source": "Cordero et al., Dalton Trans. 2008, 2832 (공유결합 반경, Angstrom)"
+ },
+ "layer_I": {
+  "_doc": "이온·배위 층. 양이온과 배위 원자의 접촉을 거리로 정의한다.",
+  "cations": [
+   "Li",
+   "Na",
+   "K",
+   "Mg",
+   "Ca"
+  ],
+  "contact_cutoff_ang": {
+   "Li-O": 2.75,
+   "Li-F": 2.75,
+   "Li-N": 2.75,
+   "Li-C": 2.75,
+   "Li-P": 2.75,
+   "Li-S": 2.75,
+   "default": 2.75
+  },
+  "sensitivity_delta_ang": 0.2,
+  "_provenance": "🟢 [MEASURED] 2.75 Å — the Li–X RDF FIRST MINIMUM, from the user's MLIP trajectory (U-67 CLOSED, 2026-08-19). 🔴 SUPERSEDES the previous [PLACEHOLDER-ESTIMATE] table (Li-O 2.4 / Li-F 2.3 / default 2.5), whose provenance string named P1 and **P2** as the intended source — and P2 WAS DELETED (ADR-033), so that string pointed at something that does not exist. 🟢 A first minimum is the right place to cut: the radial density is lowest there, so membership is least sensitive to small geometry changes. 2.4 Å was not merely a guess, it was a guess INSIDE the shell.",
+  "_sensitivity_rule": "임계를 ±sensitivity_delta_ang 만큼 흔들어 판정이 뒤집히는 건수를 반드시 함께 보고한다(§12.4-3, §12.5).",
+  "_not_element_resolved": "🔴 The user gave Li–X GENERICALLY. 2.75 Å is applied to every coordinating element and there is NO per-element table. Do not assume one exists; ask if something turns out to need it.",
+  "_superseded_values": {
+   "Li-O": 2.4,
+   "Li-F": 2.3,
+   "Li-N": 2.4,
+   "Li-C": 2.6,
+   "Li-P": 2.9,
+   "Li-S": 2.8,
+   "default": 2.5
+  },
+  "_invalidates": "🔴 WIDENED BY 0.35 Å ON Li-O. EVERY Layer-I R2/R3 endpoint verdict computed under the old 2.4 Å table is PROVISIONAL AND MUST BE RECOMPUTED, not grandfathered. A wider cutoff admits contacts that were previously excluded, so verdicts can flip in one direction only — toward MORE coordination."
+ },
+ "kinetic_merge": {
+  "_doc": "R2b — 실체 수가 같은 배위 재배열은 그래프가 아니라 속도론으로 가른다.",
+  "tau_eV": 0.1,
+  "_basis": "4 k_B T @ 300 K. 수명 < ps. 02_METHOD_SPEC §6.1의 conformer 병합 규약 및 §9의 0.1 eV 감도 한계와 동일한 값이며, 새 규칙이 아니라 기존 규약의 일관된 확장이다.",
+  "unknown_barrier_policy": "undetermined",
+  "_unknown_barrier_policy_doc": "🔴 barrier를 모르면 병합도 분리도 하지 않는다. 조용히 기각하면 §12.2의 위음성이 뒷문으로 돌아온다. 사람 검토 큐(§9.3)로 보낸다."
+ }
+}

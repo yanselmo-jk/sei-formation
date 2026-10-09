@@ -1,0 +1,64 @@
+# ---- Python ----
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+.venv/
+venv/
+
+# ---- Claude Code session state (local only) ----
+.session_state/
+
+# ---- Raw calculation results (regenerable; too big for git) ----
+# 1.6G of pilot runs from the CPU machine
+cpu_machine_pilot_results/
+# xtb pre-check outputs (14M); method is described in docs/02_METHOD_SPEC.md
+data/gfn2_pes_precheck_20260820/
+# LIBE dataset dump (285M, public download). Keep index/coverage/gen scripts.
+data/libe/libe.json
+# experiment outputs (p2g gfnff_topo etc., 250M)
+src/experiments/*/out*/
+# packaged smoke-run work dirs
+src/pilot_package/sei_pilot_work/
+
+# ---- Build artifacts & vendored binaries ----
+# release tarballs (keep BUILD_STAMP.json and *.sha256)
+src/dist/*.tar.gz
+# xtb 6.7.1 binary (61M); provenance stays in vendor/xtb/PROVENANCE.json
+src/pilot_package/vendor/xtb/bin/
+src/pilot_package/vendor/xtb/share/
+# bundled pilot_tests archives (extracted dirs are tracked minus scratch below)
+pilot_tests/*.tar.gz
+
+# ---- Gaussian / xtb / CREST scratch ----
+*.chk
+*.fchk
+*.rwf
+*.int
+*.d2e
+*.skr
+xtbrestart
+gfnff_topo
+gfnff_charges
+gfnff_adjacency
+wbo
+charges
+xtbopt.log
+*.xtboptok
+crest_rotamers_*.xyz
+*.btr
+# PBS stdout/stderr
+*.o[0-9]*
+*.e[0-9]*
+*.pbs.out
+*.pbs.err
+
+# ---- Editor / OS ----
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# ---- Keep test fixtures even if they match patterns above ----
+!tests/fixtures/**

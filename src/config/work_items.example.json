@@ -1,0 +1,45 @@
+{
+  "_doc": "작업 항목 예시 — `./src/batch.sh validate src/config/work_items.example.json`",
+  "_note": "core_hours/wall_h 는 전부 [ESTIMATE]다 (RT-1 회신 전). 구조 검증용 값이며 견적이 아니다.",
+  "items": [
+    {"id": "P1", "title": "TS 완주 파일럿", "rt": "RT-1", "core_hours": 1000, "wall_h": 7.8,
+     "needs_return": true, "owner": "coder", "note": "회신 = sei_probe_report.json"},
+    {"id": "P2", "title": "CP2K AIMD 1 ps", "rt": "RT-1", "core_hours": 400, "wall_h": 3.1},
+    {"id": "P3", "title": "gen-1 열거 + xTB", "rt": "RT-1", "core_hours": 500, "wall_h": 3.9},
+
+    {"id": "S1-tier1", "title": "tier-1 cluster DFT", "rt": "RT-2", "core_hours": 50000,
+     "wall_h": 12, "depends_on": ["P1"]},
+    {"id": "S1-mech", "title": "mechanism TS 6건", "rt": "RT-2", "core_hours": 8000, "wall_h": 18},
+    {"id": "MD-classical", "title": "고전 MD (FF 후보 3종)", "rt": "RT-2", "core_hours": 3000,
+     "wall_h": 10},
+    {"id": "PM7-probe", "title": "PM7 처리량 프로브 Q17 + tau_eq U-21", "rt": "RT-2",
+     "core_hours": 6, "wall_h": 1, "depends_on": ["MD-classical"],
+     "needs_return": true, "note": "축 3 존폐 판정"},
+
+    {"id": "discover-3engine", "title": "3엔진 발견 병렬", "rt": "RT-3", "stage": "discover",
+     "core_hours": 120000, "wall_h": 20, "writes": "ledger", "depends_on": ["PM7-probe"]},
+    {"id": "enum-filter", "title": "열거 및 여과", "rt": "RT-3", "stage": "enumerate",
+     "core_hours": 10000, "wall_h": 8, "writes": "working_network",
+     "depends_on": ["discover-3engine"]},
+    {"id": "thermo-dft", "title": "thermo DFT", "rt": "RT-3", "stage": "thermo_dft",
+     "core_hours": 480000, "wall_h": 22, "writes": "working_network",
+     "depends_on": ["enum-filter"]},
+    {"id": "xtb-anchor", "title": "xTB TS 앵커 2e5", "rt": "RT-3", "stage": "xtb_ts_anchor",
+     "core_hours": 60000, "wall_h": 16, "writes": "working_network",
+     "depends_on": ["thermo-dft"]},
+    {"id": "surrogate-v0", "title": "surrogate v0 학습", "rt": "RT-3", "stage": "surrogate_v0",
+     "core_hours": 2000, "wall_h": 6, "writes": "working_network", "depends_on": ["xtb-anchor"]},
+    {"id": "rank-v0", "title": "랭킹", "rt": "RT-3", "stage": "rank", "core_hours": 500,
+     "wall_h": 2, "writes": "working_network", "depends_on": ["surrogate-v0"],
+     "needs_return": true, "note": "회신 = 원장 + network 스냅샷 + 랭킹"},
+
+    {"id": "S3-wave1", "title": "목표종 역추적 TS", "rt": "RT-4", "core_hours": 300000,
+     "wall_h": 20, "depends_on": ["rank-v0"], "needs_return": true},
+    {"id": "S3-wave3", "title": "flux 잔여 TS", "rt": "RT-5", "core_hours": 250000,
+     "wall_h": 20, "depends_on": ["S3-wave1"], "needs_return": true},
+    {"id": "S4-ode", "title": "강성 ODE 적분", "rt": "RT-6", "core_hours": 5000, "wall_h": 4,
+     "depends_on": ["S3-wave3"], "needs_return": true},
+    {"id": "demo-1", "title": "데모 1계 전 구간", "rt": "RT-7", "core_hours": 400000,
+     "wall_h": 23, "depends_on": ["S4-ode"], "needs_return": true}
+  ]
+}

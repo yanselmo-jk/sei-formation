@@ -1,0 +1,126 @@
+{
+ "_doc": "B0-D arm 1 — the CONFORMER SEARCH. 🔴 xtb metadynamics, NOT ETKDG+MMFF.",
+ "_ruling": "lead relaying proposer5, 2026-08-19. 02_METHOD_SPEC §37.2.3 option (ii), whose PRE-REGISTERED activation condition ('only if the CREST binary does not run on KNL') is now satisfied in the stronger form: CREST does not exist to be run. This is a pre-registered fallback FIRING, not a new choice made under pressure.",
+ "_why_not_etkdg": "🔴 §37.2.3 rules ETKDG+MMFF94 UNDEFINED for this class: MMFF94 has no Li parameters, and ETKDG generates conformers of ONE COVALENT MOLECULAR GRAPH while Li+Ln is a NON-COVALENT complex. §37.2.3's own line: 'Li+ coordination clusters: CREST directly (going via RDKit is FORBIDDEN -- MMFF has no Li parameters)'. Separately, RDKit is not installed on either side of the air gap; 02_METHOD_SPEC:4554's claim that ASE and RDKit are already vendored is false against the tree (vendor/ holds xtb and nothing else) and has been corrected.",
+ "_upgrade_not_concession": "GFN2-xTB covers H-Rn. ETKDG+MMFF is a covalent-organic toolchain that may have NO parameters at all for an unstudied electrolyte's novel elements, so the substitution improves ADR-014 transferability independently of availability.",
+ "schema_version": "1.0",
+ "engine": {
+  "binary": "xtb",
+  "vendored_first": true,
+  "version_verified": "6.7.1 (edcfbbe)",
+  "_version_note": "the vendored static binary was RUN on the dev box to verify every flag used below. 🔴 Flags are NOT written from memory (--metadyn takes an xcontrol $md/$metadyn block; verified by execution, and the resulting trajectory is tests/fixtures/xtb_metadyn_li_ec_cation.trj).",
+  "isolate_working_directory_per_run": true,
+  "_isolation_note": "🔴 MANDATORY. xtb caches a GFN-FF topology in the WORKING DIRECTORY and reuses it on the next run; running two structures in one directory applied structure 1's topology to structure 2 and produced a 591 eV phantom deviation (HANDOFF §0.2b-1)."
+ },
+ "metadynamics": {
+  "gfn": 2,
+  "md_time_ps": 5.0,
+  "md_step_fs": 1.0,
+  "md_temp_k": 400.0,
+  "md_dump_fs": 250.0,
+  "shake": 0,
+  "hmass": 4,
+  "save": 10,
+  "kpush": 0.05,
+  "alp": 0.8,
+  "_parameter_source": "🔴 CODER-CHOSEN STARTING VALUES, NOT FROM THE SPEC and NOT TUNED. They are CREST's iMTD-GC defaults in shape. §37.2.3 warned this exact thing: 'the failure risk is not the physics -- it is the dedupe and convergence HYPERPARAMETERS, and that is precisely what CREST has accumulated.' ⟹ these values are reported with every result and B0-D's own output is the first evidence about whether they are adequate.",
+  "_observed": "On Li+(EC) this produced 20 frames in 74 s wall (12 threads, 11 atoms) and printed 'thermostating problem' with T reaching 658 K against a requested 400 K, WHILE reporting normal termination. 🔴 Health must be judged on parsed content, never on the banner.",
+  "_stopping_rule": {
+   "_doc": "🔴 `5 ps` is a STOPPING RULE, and ADR-015 §1 governs stopping rules: an EXTENSIONAL boundary is answer-dependent and does not transfer; only a SELF-REFERENTIAL one does.",
+   "rule": "run until the NEW-CONFORMER DISCOVERY RATE falls below `discovery_rate_threshold`, capped at `max_time_ps`",
+   "discovery_rate_threshold": 0.05,
+   "_threshold_note": "🔴 CODER-CHOSEN. new unique conformers per dump interval, averaged over the last `window_dumps` dumps.",
+   "window_dumps": 4,
+   "max_time_ps": 20.0,
+   "_cap_note": "🔴 THE CAP MUST BE REPORTED WHEN IT BINDS, or a TRUNCATION LOOKS LIKE CONVERGENCE."
+  },
+  "_md_time_ps_note": "retained as the per-segment length; the RUN length is now set by _stopping_rule, not by this value."
+ },
+ "optimisation": {
+  "gfn": 2,
+  "level": "normal",
+  "_note": "each MTD frame is optimised before it is classified or deduplicated. Classification on RAW MD FRAMES would be wrong: the real trajectory has a frame whose Li-O distance transiently reaches 2.688 A, past the 2.4 A contact cutoff, in an otherwise intact complex."
+ },
+ "dedupe": {
+  "rmsd_threshold_ang": 0.25,
+  "energy_threshold_ev": 0.002,
+  "_threshold_source": "🔴 CODER-CHOSEN. See _parameter_source above -- these are the hyperparameters §37.2.3 named as the actual risk of re-implementing CREST badly. Both are reported with the ensemble so a reader can see what produced the count.",
+  "_rmsd_note": "no atom-order matching and no permutation search: all conformers come from one trajectory of one species and therefore share an atom ordering. Mirror images are NOT identified as duplicates."
+ },
+ "dft_promotion": {
+  "gfn2_window_ev": 0.13,
+  "_window_source": "🟢 FROM THE SPEC, not chosen by me. §37.2.4-2: 'do NOT take the single lowest GFN2 conformer. Promote EVERY conformer inside a GFN2 window of <= 0.13 eV (3 kcal/mol) to DFT and RE-RANK AT DFT.'",
+  "_why": "🔴 It closes the route by which xTB could influence the ΔG ordering, which is what keeps this inside §16.1-B2. B2 forbids using xTB to decide WHICH SPECIES get DFT; choosing a conformer WITHIN a species is not species selection, but only if the final ranking is DFT's.",
+  "rerank_at": "dft"
+ },
+ "dissociation": {
+  "_doc": "🔴 A NON-COVALENT COMPLEX CAN DISSOCIATE UNDER MTD. DETECT IT AND COUNT IT -- DO NOT SILENTLY DISCARD.",
+  "_why": "lead ruling, 2026-08-19: 'the dissociation rate is a DIRECT MEASUREMENT of how floppy the cluster is, which is B0-D's actual question. Discarding them deletes the answer.'",
+  "contact_cutoffs_from": "config/graph_layers.json :: layer_I.contact_cutoff_ang",
+  "_cutoff_note": "🔴 that table is flagged [PLACEHOLDER-ESTIMATE] in its own provenance field and carries a MANDATORY sensitivity rule: report how many classifications flip when the threshold is moved by +/- sensitivity_delta_ang. The dissociation rate inherits that obligation -- it is not a free number.",
+  "classes": [
+   "intact",
+   "ligand_dissociated",
+   "ligand_fragmented"
+  ],
+  "_classes_note": "ligand_dissociated (a ligand drifted off the cation, chemistry intact) and ligand_fragmented (a covalent bond broke) are DIFFERENT events with different meanings and must never share a bucket."
+ },
+ "open_shell": {
+  "_doc": "Arm 1 runs the open-shell stratum too. It extends with `xtb --uhf 1`; nothing is special-cased.",
+  "_why_it_matters": "🟢 This is what dissolves the C-8 objection to B0-F's reactants: arm 1 VALIDATES them -- MTD -> opt -> DFT opt+freq, n_imag = 0. R-A/R-B's reactant Li(EC)• otherwise exists only as the idealised li_ec_radical.xyz, which is exactly the kind of guess that produced P1.",
+  "uhf_from_multiplicity": "multiplicity - 1  (xtb counts UNPAIRED ELECTRONS; Gaussian counts 2S+1. Confusing them changes the electronic state SILENTLY.)",
+  "_gfn2_open_shell_caveat": "🔴 GFN2-xTB is a spin-restricted-ish semiempirical method and its open-shell treatment is not a UKS calculation. It is used HERE only to GENERATE and RANK candidate geometries, and §37.2.4-2 sends the whole 0.13 eV window to DFT for re-ranking, so GFN2 never sets the ΔG ordering. [UNVERIFIED: whether GFN2 metadynamics samples radical conformers as well as it samples closed-shell ones. B0-D's open-shell stratum is the first evidence either way.]"
+ },
+ "pre_optimisation": {
+  "_doc": "🔴 ARM 1 ONLY. Optimise at GFN2 BEFORE the metadynamics.",
+  "_ruling": "lead relaying proposer5, 2026-08-19: DIAGNOSE, DO NOT TUNE. Before attributing the temperature overshoot to the thermostat, check the input -- ADR-067 for the fifth time, and the first time it has arrived at an ENGINE rather than a result.",
+  "enabled": true,
+  "level": "tight",
+  "_arm2_must_not_get_this": "🔴 arm 2 is the CONTROL and KEEPS ITS IDEALISED START. Pre-optimising it would destroy the only thing it measures.",
+  "_measured_effect": "MEASURED on Li+(EC): <T> over the first 200 MD steps falls from 702 K (idealised start) to 484 K (GFN2-optimised start). The excess potential energy of the idealised geometry is 1.0495 eV, measured as E(idealised) - E(optimised) at GFN2.",
+  "_but_it_is_not_the_whole_cause": "🔴 The overshoot does NOT disappear -- see thermostat_finding."
+ },
+ "thermostat_finding": {
+  "_doc": "🔴 THE THERMOSTAT IS CORRECT. The persistent excess is the BIAS POTENTIAL.",
+  "_measured": {
+   "plain_md_from_optimised_K": 395.0,
+   "mtd_from_optimised_K": 564.0,
+   "mtd_from_idealised_K": 625.0,
+   "setpoint_K": 400.0
+  },
+  "_conclusion": "Plain MD from the optimised structure holds 395 K against a 400 K setpoint (-5 K) with ZERO thermostat warnings. Adding ONLY the $metadyn bias, from the SAME geometry, raises it to 564 K. 🔒 A metadynamics bias does work on the system BY CONSTRUCTION -- it is the search mechanism -- so elevated temperature is intrinsic to MTD, not a defect.",
+  "_the_prescription_that_would_have_been_wrong": "🔴 The pre-registered decision tree said 'if the overshoot persists it IS the thermostat, and only then setpoint or coupling time'. Tuning the thermostat would have been applied to a thermostat that is demonstrably working. A third variable existed that the binary did not allow for.",
+  "_consequence_for_the_dissociation_rate": "🔴 A dissociation rate counted on an MTD trajectory is NOT a rate at a defined temperature and cannot be made into one by fixing the input or the thermostat. 🟢 Plain MD at a controlled temperature DOES hold its setpoint (measured), so a defined-temperature floppiness measurement is available and cheap. WHICH INSTRUMENT B0-D SHOULD USE FOR THE FLOPPINESS STATISTIC IS A METHODOLOGY DECISION -- routed, not taken."
+ },
+ "temperature_reporting": {
+  "_doc": "🔴 REQUIRED OUTPUT FIELDS for every MD in this project. TWO fields, never one.",
+  "_ruling": "proposer5, 2026-08-19: MD engines do not deliver the requested temperature, and the DIRECTION IS ENGINE-SPECIFIC.",
+  "required_fields": [
+   "temperature_requested_k",
+   "temperature_measured_k"
+  ],
+  "_why_two": "A single `temperature` field records the SETPOINT and we would never know. xtb MTD runs HOT (T_eff/T_set measured at 1.22-1.70 here, depending on the start); G16 ADMP is expected to run COLD (T_eff ~ 0.5 x T_init, U-53, still unmeasured). 🔴 These point OPPOSITE WAYS and neither can be assumed.",
+  "_t_eff_is_not_a_constant": "🔴 MEASURED here at 1.70 (idealised start) and 1.22-1.41 (optimised start) for the SAME setpoint and the same $md block. T_eff depends on the starting geometry and on whether a bias is active, so it must be MEASURED PER RUN and not applied as a stored factor."
+ },
+ "hyperparameter_pairs": {
+  "_doc": "🔴 Run >= 2 (kpush, alp) PAIRS on 2-3 species, not one pair.",
+  "_ruling": "proposer5, 2026-08-19: 'CREST's accumulated wisdom is not a better pair -- it is using SEVERAL SIMULTANEOUSLY, because a single pair explores one characteristic length scale.'",
+  "pairs": [
+   {
+    "kpush": 0.05,
+    "alp": 0.8
+   },
+   {
+    "kpush": 0.2,
+    "alp": 0.4
+   }
+  ],
+  "_pairs_note": "🔴 CODER-CHOSEN, deliberately spanning a wider and a narrower length scale.",
+  "probe_species": [
+   "li_ec_cation",
+   "li_ec2_cation",
+   "li_ec_radical"
+  ],
+  "_read_out": "🟢 If the pairs converge to the same low-lying structures, the hyperparameters do not matter AND WE HAVE MEASURED THAT. Same shape as the ε bracket: design the experiment so that not knowing the right value does not block us."
+ }
+}

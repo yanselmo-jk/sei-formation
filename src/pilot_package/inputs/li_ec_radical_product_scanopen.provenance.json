@@ -1,0 +1,7 @@
+{
+ "purpose": "R-A product endpoint 인증의 대체 시작점 (b). endpoint_prep.sh 가 packaged guess (a) 와 이 구조 (b) 를 둘 다 stage-1 rough opt 로 돌리고 낮은 basin 을 stage 2 에 넘긴다 — DFT 인증 1건이 잘못된 시작점 때문에 통째로 버려지는 것을 막는다 (lead 지시, 2026-08-20).",
+ "source_geometry": "data/gfn2_pes_precheck_20260820/04_scanend_opt/xtbopt.xyz",
+ "derivation": "relaxed scan O2-C3 1.40->3.00 A (02_scan_ra) 마지막 frame 의 자유 완화. GFN2 에너지 -20.948180 Eh vs packaged product 의 자유 완화 -20.926673 Eh (03_prod_opt) = 0.585 eV 차이 [MEASURED, GFN2 — DFT barrier/에너지 주장 아님].",
+ "optimiser": "vendored xtb 6.7.1 (edcfbbe), --opt tight, dev box, 2026-08-20",
+ "packaged_by": "coder10, 2026-08-20"
+}

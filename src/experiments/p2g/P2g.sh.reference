@@ -1,0 +1,55 @@
+#!/bin/bash
+# P2g — **xtb GFN-FF 주기계** 검증 2건 (proposer (A) 경로). 엔진은 동봉된 xtb 다.
+#
+# V1 🔴 PBC 정합성 단위시험: 셀의 일부만큼 평행이동시켜도 에너지가 불변인가.
+#    근거: grimme-lab/xtb **Issue #1118 (v6.7.1 = 우리 동봉 버전, 미해결)** —
+#    GFN-FF PBC MD 에서 unwrap + 에너지 drift 보고, 개발자 코멘트 없음.
+#    **"된다"고 가정하면 안 된다. 실패하면 (A) 경로 전체가 흔들린다.**
+#
+# V2  Li+(EC)4 액체 50 ps → Li–O RDF 첫 봉우리 · 배위수.
+#
+# 🔴 판정하지 않는다. 원자료만 넘긴다 — 물리 판정은 proposer 몫이다.
+set -u
+source "${SEI_PKG_ROOT}/payload/common.sh"
+D="${SEI_JOB_DIR}"
+NP="${SEI_TOTAL_CORES:-1}"
+
+# xtb 탐지: 동봉본 → 시스템. 동봉본 실행 실패 시 사유를 남기고 넘어간다.
+eval "$(PYTHONPATH="${SEI_PKG_ROOT}" python3 - "$SEI_PKG_ROOT" <<'PY'
+import sys
+sys.path.insert(0, sys.argv[1])
+from sei_pilot import envpaths
+from sei_pilot.shellrun import Shell
+v = envpaths.vendored("xtb", sys.argv[1])
+if v:
+    print('SEI_XTB=%s' % v["path"])
+    for k, val in v["env"].items():
+        print('export %s=%s' % (k, val))
+else:
+    print('SEI_XTB=%s' % (envpaths.resolve_tool(Shell(), "xtb",
+                                                prefer_vendored=False) or ""))
+PY
+)"
+if [ -n "${SEI_XTB:-}" ] && ! "${SEI_XTB}" --version > "$D/xtb_version.txt" 2>&1; then
+  echo "[P2g] 🔴 동봉 xtb 실행 실패 → 시스템 xtb 로 넘어간다"
+  SEI_XTB="$(command -v xtb 2>/dev/null || true)"
+fi
+[ -z "${SEI_XTB:-}" ] && { echo "[P2g] xtb 없음 → 생략"; exit 3; }
+export SEI_XTB
+echo "[P2g] xtb: ${SEI_XTB}"
+
+# --- 상자 생성 (사양은 config/p2g.json 한 곳에서 온다) ---
+sei_stage build_boxes env PYTHONPATH="${SEI_PKG_ROOT}" python3 \
+  "${SEI_PKG_ROOT}/tools/p2g_boxes.py" "$D"
+
+# --- V1: 평행이동 불변성 ---
+sei_stage v1_translation env PYTHONPATH="${SEI_PKG_ROOT}" SEI_XTB="${SEI_XTB}" \
+  python3 "${SEI_PKG_ROOT}/tools/p2g_v1.py" "$D"
+
+# --- V2: Li+(EC)4 액체 MD → Li–O RDF ---
+sei_stage v2_md bash -c \
+  "cd '$D/v2' && '${SEI_XTB}' coord --gfnff --md --input md.inp -P $NP > md.out 2>&1"
+PYTHONPATH="${SEI_PKG_ROOT}" python3 "${SEI_PKG_ROOT}/tools/p2g_v2.py" "$D" || true
+
+echo "[P2g] 완료. 판정은 하지 않는다 — 원자료는 p2g_result.json 에 있다."
+exit 0

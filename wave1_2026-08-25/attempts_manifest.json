@@ -1,0 +1,35 @@
+{
+  "_doc": "S3 wave-1 attempt pre-registration -- standing rule 7 (05_STATE.md §4: 'Report success/completion rates with their real denominator, never pool survivors with a silently-shrunk attempt count... pre-register the attempt list before dispatch (payload/P3.sh's existing pattern), record an explicit failure marker rather than a missing file.'). Written BEFORE either job is submitted, per that pattern. U-56b denominator discipline starts here, not at analysis.",
+  "_scope": "02_METHOD_SPEC.md §39.136, third addendum -- FINAL wave-1 attempt list: 2 attempts. Slots 3-4 are EMPTY BY DESIGN (not unfilled-pending) -- wave 2's slots come from stage 0 / the conditional MTD pilot / the eventual S2 network, not hand-named here.",
+  "_denominator_discipline": "02_METHOD_SPEC.md §39.136, third addendum: T21-se (21-atom) and R-B (11-atom) are DIFFERENT size strata under this project's own never-pool rule (§39.39(f)/ADR-087's extension) -- each is its own n=1, NEVER a combined n=2. Only CHEMICAL-class outcomes count toward any rate estimate; BUDGET/PROTOCOL/engine/unknown are excluded from that numerator/denominator by design, not by oversight.",
+  "_5_class_taxonomy": ["chemical", "budget", "protocol", "engine", "unknown"],
+  "_6th_class_note": "§39.138/§39.139 (proposer13): a 6th class, `staged`, was added after this manifest's original 5-class list was written -- U56.sh's SEI_U56_STOP_AFTER deliberate circuit breaker (status `stopped_after_stage`) classifies `staged`: not a retry target (protocol/engine/unknown), not a completed answer (chemical/budget/success), and per this manifest's OWN denominator rule, never pooled into either stratum's numerator/denominator -- a mid-attempt checkpoint isn't a concluded outcome. Slot 1 (T21-se stage 1) is exactly the attempt this class exists for.",
+  "_stage0_note": "Stage 0 (the MTD-pilot comparator) is NOT a wave-1 attempt -- it runs in PARALLEL, gated by an independent condition on a different pipeline stage (S2 product discovery, not S3 barriers). Not listed below; see wave1_2026-08-25/stage0/.",
+  "attempts": [
+    {
+      "slot": 1,
+      "reaction": "R-C",
+      "method": "T21-se (single-ended relaxed scan -> ts_opt -> IRC, 21 atoms)",
+      "level": "level2 (G-1, wB97XD/def2-TZVPPD)",
+      "size_stratum": "21-atom",
+      "n_within_stratum": 1,
+      "status": "STAGED, stage 1 (scan) only -- staged/circuit-breaker protocol (§39.136 addendum, §R39.88 §3): stage 1 submitted alone; stages 2-5 (refine/ts_opt/IRC/B+) are sized and built ONLY after stage 1's real result returns. If stage 1 hits its wall cap without finishing, the pre-registered decision is STOP AND RE-SCOPE, not resubmit with a bigger cap.",
+      "job_dir": "<pkg_root>/sei_pilot_work/jobs/U56_RC_scan_wave1 (remote, on the cluster once placed there) -- STAGED, wave1_2026-08-25/t21se_stage1/U56_RC_scan_wave1.{qsub,cmd.sh}, NOT submitted. SEI_U56_STOP_AFTER=u56_scan (§39.136 fifth addendum, Q2 ruled option (a)) enforces stage-1-only.",
+      "outcome_class": null,
+      "outcome_class_note": "null until classified post-run per the 5-class taxonomy above -- this slot must not be silently dropped if the attempt fails, times out, or is withdrawn; record the real reason here, not a missing entry."
+    },
+    {
+      "slot": 2,
+      "reaction": "R-B",
+      "method": "relaxed_scan (single-ended relaxed scan -> ts_opt -> IRC fwd/rev, 11 atoms) -- REDO, not the original rejected U56_RB_scan candidate (ADR-116 rejected that search method's OUTPUT, not R-B's chemistry, §39.136(1))",
+      "level": "level2 (G-1, wB97XD/def2-TZVPPD)",
+      "size_stratum": "11-atom",
+      "n_within_stratum": 1,
+      "status": "STAGED, full chain -- wave1_2026-08-25/rb_redo/U56_RB_scan_wave1.{qsub,cmd.sh}, NOT submitted.",
+      "job_dir": "<pkg_root>/sei_pilot_work/jobs/U56_RB_scan_wave1 (remote, on the cluster once placed there)",
+      "outcome_class": null,
+      "outcome_class_note": "null until classified post-run per the 5-class taxonomy above."
+    }
+  ],
+  "_reading_rule": "wave 1 produces NO usable U-56b rate signal in either stratum (n=1 each, 1 - 0.05^(1/1) = 0.95 -- cannot rule out even p=0.9 from a single attempt, 02_METHOD_SPEC.md §39.136 third addendum). Its real, honest deliverables are (a) T21-se's long-overdue cost measurement (a feasibility/cost anchor, not a rate point) and (b) one real chemistry data point for R-B (a single classification, informative for THAT attempt alone, not for an 11-atom rate). Do not report either slot's outcome as evidence about a rate."
+}

@@ -1,0 +1,61 @@
+#!/bin/sh
+#PBS -V
+#PBS -q normal
+#PBS -N sei_u56_dvv_r3_full
+#PBS -A gaussian
+#PBS -l select=1:ncpus=64:mpiprocs=1:ompthreads=64
+#PBS -l walltime=44:00:00
+# DVV escalation FULL run, rung 3 (FALLBACK -- only if rung 2's SMOKE ALSO
+# errors) -- calcfc dropped, GradientOnly added. SCIENTIFICALLY UNDESIRABLE
+# (discards this project's available analytic Hessians) -- worth a second look
+# from the lead/user before spending real core-h here, not an automatic step
+# after rung 2 fails. (proposer13 §39.130, 02_METHOD_SPEC.md; engineer14
+# pricing §R39.86, 03_COMPUTE_PLAN.md:19927-20035) -- THIRD-TIER BACKUP, staged
+# alongside Candidate B and the EulerPC escalation for one cluster round-trip,
+# NOT a promotion. Only submit this if ALL of: (1) Candidate B failed its
+# checks, (2) the EulerPC escalation failed its checks, (3)
+# irc_dvv_rung3_smoke.gjf has already run and its own route-syntax/echo checks
+# passed (see the bundle README and this directory's own README).
+#
+# Only reach this rung if the PREVIOUS rung's smoke ERRORED (a route-syntax
+# rejection specifically, not just an unfamiliar result).
+#
+# DVV is a velocity-Verlet propagator that shares NO machinery with the
+# Bulirsch-Stoer/DWI corrector Candidate B and EulerPC both ride on -- this is
+# the one tier that can actually distinguish "the corrector is the problem"
+# from "the PES region is just hard" (§39.130). recorrect=never is deliberately
+# OMITTED for this whole tier (proposer13 §39.130(2)) -- do not add it "for
+# consistency" with the other two decks.
+#
+# Walltime: CEILING-ONLY pricing (engineer14 §R39.86 -- no targeted/expected
+# figure exists; DVV's per-point cost AND point-count-per-arc are BOTH
+# unmeasured, unlike Candidate B/EulerPC where at least one axis was anchored
+# to the shared corrector). Requested ceiling 100.0-1090.0 core-h (100 pts x
+# 1.0-10.9 core-h/pt, the widest bracket priced on this work item) => 1.6-17.0h
+# wall at 64 cores. 44h is the most margin available under ADR-114's 48h cap
+# (~2.6x over the pessimistic 17.0h ceiling) -- narrower than every other job
+# on this work item BY NECESSITY (engineer14's own flag: ~2.8x margin against
+# the 48h cap itself is already the narrowest single-job margin priced here),
+# not a choice to cut corners; a larger safety factor is not available without
+# exceeding the cap outright.
+#
+# RUNG 3 SPECIFIC: engineer14's own §R39.86 caveat -- treat the pessimistic
+# 10.9 core-h/pt as a FLOOR for this rung, not a ceiling (removing
+# Hessian/curvature guidance typically means MORE steps needed, not fewer).
+# Real cost here could exceed the bracket above. Re-check
+# irc_dvv_rung3_smoke.log's own per-point timing before trusting this walltime,
+# and reconsider whether this rung is worth running at all (§39.130:
+# scientifically undesirable) before submitting.
+#
+# Cores come from the deck's own %nprocshared=64 line -- no builder default.
+# GAUSS_NPROCSHARED is NOT a Gaussian 16 variable and is deliberately absent
+# here.
+set -u
+cd "${PBS_O_WORKDIR:-.}" || exit 1
+trap 'echo "[sei] SIGTERM $(date -u +%FT%TZ): dvv_r3_full killed before completion" >> dvv_r3_full_kill.marker; exit 1' TERM
+module load gaussian/g16.c01.linda 2>/dev/null || echo '[sei] module load gaussian/g16.c01.linda failed - continuing'
+echo "[sei] dvv_r3_full start $(date -u +%FT%TZ)"
+g16 < irc_dvv_rung3_full.gjf > irc_dvv_rung3_full.log 2>&1
+rc=$?
+echo "[sei] dvv_r3_full end $(date -u +%FT%TZ) rc=$rc"
+exit $rc

@@ -1,0 +1,205 @@
+{
+ "_doc": "[engineer9 §R39.65 / proposer8 §39.103, 2026-08-21] P5 freq-only recovery: the 17 P5 rows whose optimisation CONVERGED last round (stored geometry in jobs/P5/species/<tag>/job.log) get ONE Hessian each at production settings (acetone deck, nosymm, UltraFine, same level as the row). Budgets = Hessian(NBasis, p=4.46 pessimistic) x 1.5 + 1.66 overhead, floor 6.4; anchored on the ONE measured Hessian (2.27 core-h, NBasis 173, 3N=33, 64 threads). NOT a freq/opt ratio (opt cost carries seed quality; a Hessian does not).",
+ "_skipped_rows": {
+  "_doc": "[§39.103(3)] rows with NO converged geometry -- skipped: no_converged_geometry, cause: opt_unconverged (U-55 floppy PES; NOT EpsInf casualties, zero sentinel hits). A longer wall is the wrong fix.",
+  "tags": [
+   "ec_dimer_s0_L2",
+   "emc_radical_anion_s0_L2",
+   "li_ec2_cation_s0_L1",
+   "li_ec2_cation_s0_L2",
+   "li_ec2_cation_s1_L2"
+  ]
+ },
+ "cores_per_task": 64,
+ "_cores_note": "[engineer9] 64 = P5 round 1's basis. u_cheap = u_opt + u_freq must come from ONE thread configuration; 16 threads would save ~60% and break the deliverable. Switch whole rounds, never halves.",
+ "min_wall_h": 0.25,
+ "rows": [
+  {
+   "tag": "emc_s0_L2",
+   "id": "emc",
+   "seed": 0,
+   "level": "2",
+   "charge": 0,
+   "multiplicity": 1,
+   "n_atoms": 15,
+   "nbasis": 404,
+   "task_budget_core_h": 205.6
+  },
+  {
+   "tag": "emc_s0_L1",
+   "id": "emc",
+   "seed": 0,
+   "level": "1",
+   "charge": 0,
+   "multiplicity": 1,
+   "n_atoms": 15,
+   "nbasis": 340,
+   "task_budget_core_h": 96.2
+  },
+  {
+   "tag": "li_ec_cation_s0_L2",
+   "id": "li_ec_cation",
+   "seed": 0,
+   "level": "2",
+   "charge": 1,
+   "multiplicity": 1,
+   "n_atoms": 11,
+   "nbasis": 321,
+   "task_budget_core_h": 55.3
+  },
+  {
+   "tag": "li_ec_radical_s0_L2",
+   "id": "li_ec_radical",
+   "seed": 0,
+   "level": "2",
+   "charge": 0,
+   "multiplicity": 2,
+   "n_atoms": 11,
+   "nbasis": 321,
+   "task_budget_core_h": 55.3
+  },
+  {
+   "tag": "ec_radical_anion_s0_L2",
+   "id": "ec_radical_anion",
+   "seed": 0,
+   "level": "2",
+   "charge": -1,
+   "multiplicity": 2,
+   "n_atoms": 10,
+   "nbasis": 299,
+   "task_budget_core_h": 37.2
+  },
+  {
+   "tag": "ec_radical_anion_s1_L2",
+   "id": "ec_radical_anion",
+   "seed": 1,
+   "level": "2",
+   "charge": -1,
+   "multiplicity": 2,
+   "n_atoms": 10,
+   "nbasis": 299,
+   "task_budget_core_h": 37.2
+  },
+  {
+   "tag": "ec_s0_L2",
+   "id": "ec",
+   "seed": 0,
+   "level": "2",
+   "charge": 0,
+   "multiplicity": 1,
+   "n_atoms": 10,
+   "nbasis": 299,
+   "task_budget_core_h": 37.2
+  },
+  {
+   "tag": "ec_s1_L2",
+   "id": "ec",
+   "seed": 1,
+   "level": "2",
+   "charge": 0,
+   "multiplicity": 1,
+   "n_atoms": 10,
+   "nbasis": 299,
+   "task_budget_core_h": 37.2
+  },
+  {
+   "tag": "pf6_anion_s0_L2",
+   "id": "pf6_anion",
+   "seed": 0,
+   "level": "2",
+   "charge": -1,
+   "multiplicity": 1,
+   "n_atoms": 7,
+   "nbasis": 288,
+   "task_budget_core_h": 22.7
+  },
+  {
+   "tag": "ec_s0_L1",
+   "id": "ec",
+   "seed": 0,
+   "level": "1",
+   "charge": 0,
+   "multiplicity": 1,
+   "n_atoms": 10,
+   "nbasis": 267,
+   "task_budget_core_h": 23.1
+  },
+  {
+   "tag": "hco3_anion_s0_L2",
+   "id": "hco3_anion",
+   "seed": 0,
+   "level": "2",
+   "charge": -1,
+   "multiplicity": 1,
+   "n_atoms": 5,
+   "nbasis": 174,
+   "task_budget_core_h": 6.4
+  },
+  {
+   "tag": "c2h4_s0_L2",
+   "id": "c2h4",
+   "seed": 0,
+   "level": "2",
+   "charge": 0,
+   "multiplicity": 1,
+   "n_atoms": 6,
+   "nbasis": 142,
+   "task_budget_core_h": 6.4
+  },
+  {
+   "tag": "ch3o_radical_s0_L2",
+   "id": "ch3o_radical",
+   "seed": 0,
+   "level": "2",
+   "charge": 0,
+   "multiplicity": 2,
+   "n_atoms": 5,
+   "nbasis": 128,
+   "task_budget_core_h": 6.4
+  },
+  {
+   "tag": "ch3o_radical_s1_L2",
+   "id": "ch3o_radical",
+   "seed": 1,
+   "level": "2",
+   "charge": 0,
+   "multiplicity": 2,
+   "n_atoms": 5,
+   "nbasis": 128,
+   "task_budget_core_h": 6.4
+  },
+  {
+   "tag": "co2_s0_L1",
+   "id": "co2",
+   "seed": 0,
+   "level": "1",
+   "charge": 0,
+   "multiplicity": 1,
+   "n_atoms": 3,
+   "nbasis": 117,
+   "task_budget_core_h": 6.4
+  },
+  {
+   "tag": "co2_s0_L2",
+   "id": "co2",
+   "seed": 0,
+   "level": "2",
+   "charge": 0,
+   "multiplicity": 1,
+   "n_atoms": 3,
+   "nbasis": 117,
+   "task_budget_core_h": 6.4
+  },
+  {
+   "tag": "h2o_s0_L2",
+   "id": "h2o",
+   "seed": 0,
+   "level": "2",
+   "charge": 0,
+   "multiplicity": 1,
+   "n_atoms": 3,
+   "nbasis": 74,
+   "task_budget_core_h": 6.4
+  }
+ ]
+}

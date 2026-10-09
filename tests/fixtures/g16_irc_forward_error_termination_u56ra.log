@@ -1,0 +1,610 @@
+ [FIXTURE SLICE -- NOT A COMPLETE G16 LOG]
+ Provenance: cpu_machine_pilot_results/sei_pilot_work/jobs/U56_RA_scan/irc_forward.log (returned U56-2 pilot tree, 2026-08-21)
+ Slice: lines 29874-30474 of the real log (the tail), verbatim, nothing edited.
+ What it shows (linear-hopping-frog plan / critic14): the IRC corrector integration dies
+ (Delta-x Convergence NOT Met / Maximum number of corrector steps exceded.) and G16 prints
+ a REAL Error termination marker (via Lnk1e in l123.exe), followed by a Linda-shutdown
+ segfault backtrace -- secondary debris, not the root cause. Wall used was 1.8-5.3h against
+ a 48h cap, so this is not a wall/budget kill despite ending abnormally.
+
+
+ Cycle  11  Pass 1  IDiag  1:
+ E= -349.657298812887     Delta-E=       -0.000000000006 Rises=F Damp=F
+ DIIS: error= 2.40D-08 at cycle  11 NSaved=  11.
+ NSaved=11 IEnMin=11 EnMin= -349.657298812887     IErMin=11 ErrMin= 2.40D-08
+ ErrMax= 2.40D-08  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.78D-12 BMatP= 1.64D-11
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com:  0.127D-04-0.377D-03-0.104D-03 0.142D-02 0.362D-02 0.326D-02
+ Coeff-Com: -0.219D-01-0.482D-01 0.325D-01 0.289D+00 0.741D+00
+ Coeff:      0.127D-04-0.377D-03-0.104D-03 0.142D-02 0.362D-02 0.326D-02
+ Coeff:     -0.219D-01-0.482D-01 0.325D-01 0.289D+00 0.741D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.346 Goal=   None    Shift=    0.000
+ RMSDP=1.02D-08 MaxDP=2.39D-07 DE=-6.14D-12 OVMax= 4.72D-07
+
+ Cycle  12  Pass 1  IDiag  1:
+ E= -349.657298812887     Delta-E=        0.000000000000 Rises=F Damp=F
+ DIIS: error= 1.06D-08 at cycle  12 NSaved=  12.
+ NSaved=12 IEnMin=11 EnMin= -349.657298812887     IErMin=12 ErrMin= 1.06D-08
+ ErrMax= 1.06D-08  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.68D-13 BMatP= 1.78D-12
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com:  0.461D-06 0.539D-04-0.292D-04-0.514D-03-0.712D-03 0.243D-02
+ Coeff-Com:  0.478D-02-0.216D-03-0.424D-01-0.663D-01 0.146D+00 0.957D+00
+ Coeff:      0.461D-06 0.539D-04-0.292D-04-0.514D-03-0.712D-03 0.243D-02
+ Coeff:      0.478D-02-0.216D-03-0.424D-01-0.663D-01 0.146D+00 0.957D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.346 Goal=   None    Shift=    0.000
+ RMSDP=6.05D-09 MaxDP=1.99D-07 DE= 5.68D-14 OVMax= 2.15D-07
+
+ CoulSu:  requested number of processors reduced to:  40 ShMem   1 Linda.
+ CoulSu:  requested number of processors reduced to:  37 ShMem   1 Linda.
+ Error on total polarization charges =  0.01321
+ SCF Done:  E(UwB97XD) =  -349.657298813     A.U. after   12 cycles
+            NFock= 12  Conv=0.60D-08     -V/T= 2.0100
+ <Sx>= 0.0000 <Sy>= 0.0000 <Sz>= 0.5000 <S**2>= 0.7546 S= 0.5023
+ <L.S>=  0.00000000000    
+ KE= 3.462010647364D+02 PE=-1.330580109936D+03 EE= 3.803482197604D+02
+ Annihilation of the first spin contaminant:
+ S**2 before annihilation     0.7546,   after     0.7500
+ Leave Link  502 at Fri Aug 21 15:51:48 2026, MaxMem=   536870912 cpu:            1051.2 elap:              22.5
+ (Enter /apps/commercial/G16/g16.linda.c01/l801.exe)
+ DoSCS=F DFT=T ScalE2(SS,OS)=  1.000000  1.000000
+ Range of M.O.s used for correlation:     1   173
+ NBasis=   173 NAE=    25 NBE=    24 NFC=     0 NFV=     0
+ NROrb=    173 NOA=    25 NOB=    24 NVA=   148 NVB=   149
+
+ **** Warning!!: The largest alpha MO coefficient is  0.36123454D+02
+
+
+ **** Warning!!: The largest beta MO coefficient is  0.38422058D+02
+
+ Leave Link  801 at Fri Aug 21 15:51:48 2026, MaxMem=   536870912 cpu:               2.1 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l1101.exe)
+ Leave Link 1101 at Fri Aug 21 15:51:49 2026, MaxMem=   536870912 cpu:               1.5 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l1102.exe)
+ Symmetrizing basis deriv contribution to polar:
+ IMax=3 JMax=2 DiffMx= 0.00D+00
+ Leave Link 1102 at Fri Aug 21 15:51:49 2026, MaxMem=   536870912 cpu:               3.3 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l1110.exe)
+ Leave Link 1110 at Fri Aug 21 15:51:50 2026, MaxMem=   536870912 cpu:               1.6 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l1002.exe)
+ Minotr:  UHF open shell wavefunction.
+ Leave Link 1002 at Fri Aug 21 15:51:50 2026, MaxMem=   536870912 cpu:               1.4 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l701.exe)
+ ... and contract with generalized density number  0.
+ Compute integral first derivatives.
+ R6Disp: Adding Grimme-D2 dispersion energy 1st derivatives to the gradient.
+ D1PCM: PCM CHGder 1st derivatives, ID1Alg=3 FixD1E=F DoIter=F DoCFld=F I1PDM=0.
+ GePol: Maximum number of non-zero 1st derivatives   =     216
+ Leave Link  701 at Fri Aug 21 15:51:53 2026, MaxMem=   536870912 cpu:             147.5 elap:               2.4
+ (Enter /apps/commercial/G16/g16.linda.c01/l702.exe)
+ L702 exits ... SP integral derivatives will be done elsewhere.
+ Leave Link  702 at Fri Aug 21 15:51:53 2026, MaxMem=   536870912 cpu:               1.5 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l703.exe)
+ Integral derivatives from FoFJK, PRISM(SPDF).
+ Compute integral first derivatives, UseDBF=F ICtDFT=           0.
+ Calling FoFJK, ICntrl=      2127 FMM=F ISym2X=0 I1Cent= 0 IOpClX= 1 NMat=1 NMatS=1 NMatT=0.
+ FoFJK:  IHMeth= 1 ICntrl=    2127 DoSepK=T KAlg= 0 I1Cent=           0 FoldK=F
+ IRaf=         1 NMat=       1 IRICut=       1 DoRegI=T DoRafI=F ISym2E= 0 IDoP0=0 IntGTp=1.
+ FoFCou: FMM=F IPFlag=           0 FMFlag=      100000 FMFlg1=         800
+         NFxFlg=           0 DoJE=F BraDBF=F KetDBF=F FulRan=T
+         wScrn=  0.000000 ICntrl=      2527 IOpCl=  0 I1Cent=           0 NGrid=           0
+         NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
+ Symmetry not used in FoFCou.
+ Leave Link  703 at Fri Aug 21 15:51:57 2026, MaxMem=   536870912 cpu:             235.1 elap:               3.7
+ (Enter /apps/commercial/G16/g16.linda.c01/l716.exe)
+ Dipole        =-1.32832908D+00 2.94667891D+00 5.15259732D-01
+ Polarizability= 0.00000000D+00 0.00000000D+00 0.00000000D+00
+                 0.00000000D+00 0.00000000D+00 0.00000000D+00
+ -------------------------------------------------------------------
+ Center     Atomic                   Forces (Hartrees/Bohr)
+ Number     Number              X              Y              Z
+ -------------------------------------------------------------------
+      1        6          -0.001343502   -0.000134643   -0.000787362
+      2        8           0.001686342    0.001337136   -0.000374298
+      3        6           0.000788333   -0.002663090    0.001879823
+      4        6           0.002993592   -0.000880326   -0.004059726
+      5        8          -0.001249251   -0.001044925    0.003322960
+      6        8           0.001360681    0.001338170   -0.000836305
+      7        1           0.000259810   -0.000263875   -0.000144163
+      8        1           0.000151607   -0.000270535    0.000203661
+      9        1          -0.003996028    0.002549825   -0.001794394
+     10        1          -0.000222670    0.000180662    0.002550588
+     11        3          -0.000428916   -0.000148397    0.000039216
+ -------------------------------------------------------------------
+ Cartesian Forces:  Max     0.004059726 RMS     0.001701129
+ Z-matrix is all fixed cartesians, so copy forces.
+ Leave Link  716 at Fri Aug 21 15:51:58 2026, MaxMem=   536870912 cpu:               1.9 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l123.exe)
+ IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC
+ Error in corrector energy =          -0.0001275307
+ Magnitude of corrector gradient =     0.0058505425
+ Magnitude of analytic gradient =      0.0097722394
+ Magnitude of difference =             0.0084553597
+ Angle between gradients (degrees)=   59.3851
+ Pt 21 Step number  19 out of a maximum of  20
+ Using modified Bulirsch-Stoer corrector integration.
+   Using distance weighted interpolants to fit PES.
+ PreDWI: IReCr0= 2 IReCr1= 1 IReCr2= 1 IReCr3= 1
+ Modified Bulirsch-Stoer Extrapolation Cycles:
+    EPS =    0.000010000000000
+    Cycle     1 NS=    48
+      PEZero:  N= 2 I= 1 D=  1.78D-03 Err=  1.68D-04
+    Cycle     2 NS=    64 Truncation Error =  0.000167889
+      PEZero:  N= 3 I= 2 D=  1.78D-03 Err=  1.12D-04
+      PEZero:  N= 3 I= 1 D=  3.56D-03 Err=  4.01D-07
+    Cycle     3 NS=    96 Truncation Error =  0.000000401
+ BS completed in    3 cycles and     208 integration steps.
+ Maximum DWI energy   std dev =  0.000023354 at pt    -1
+ Maximum DWI gradient std dev =  0.762714567 at pt    27
+ SUMMARY OF CORRECTOR INTEGRATION:
+   Predictor End Point Energy =  -349.657348
+   Old End Point Energy       =  -349.657299
+   Corrected End Point Energy =  -349.657425
+   Predictor End-Start Dist.  =     0.342075
+   Old End-Start Dist.        =     0.340587
+   New End-Start Dist.        =     0.341187
+   New End-Old End Dist.      =     0.062889
+ CORRECTOR INTEGRATION CONVERGENCE:
+   Recorrection delta-x convergence threshold:    0.010000
+   Delta-x Convergence NOT Met
+ IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC
+ Leave Link  123 at Fri Aug 21 15:51:59 2026, MaxMem=   536870912 cpu:               9.3 elap:               0.4
+ (Enter /apps/commercial/G16/g16.linda.c01/l202.exe)
+                          Input orientation:                          
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0        0.066312    0.597111   -0.090025
+      2          8           0       -0.932692    0.351082   -0.777158
+      3          6           0       -0.698975   -2.156905    0.351547
+      4          6           0        0.608855   -1.730250   -0.212284
+      5          8           0        0.975416   -0.400283    0.158640
+      6          8           0        0.381274    1.693441    0.443058
+      7          1           0       -0.936947   -1.925882    1.390702
+      8          1           0       -1.454740   -2.633771   -0.270119
+      9          1           0        1.423543   -2.344202    0.188234
+     10          1           0        0.615578   -1.835313   -1.304150
+     11          3           0       -0.872159    3.126354    0.309357
+ ---------------------------------------------------------------------
+                    Distance matrix (angstroms):
+                    1          2          3          4          5
+     1  C    0.000000
+     2  O    1.237210   0.000000
+     3  C    2.892275   2.760180   0.000000
+     4  C    2.392888   2.650923   1.486727   0.000000
+     5  O    1.372261   2.254139   2.434443   1.428553   0.000000
+     6  O    1.259094   2.239947   4.000059   3.493269   2.194898
+     7  H    3.092664   3.143914   1.090801   2.235473   2.739080
+     8  H    3.575561   3.072291   1.088600   2.253468   3.328357
+     9  H    3.251281   3.707881   2.137015   1.095932   1.995122
+    10  H    2.773532   2.730419   2.138411   1.096930   2.080516
+    11  Li   2.727142   2.980992   5.286265   5.104128   3.984146
+                    6          7          8          9         10
+     6  O    0.000000
+     7  H    3.966766   0.000000
+     8  H    4.754402   1.878175   0.000000
+     9  H    4.177776   2.681946   2.928899   0.000000
+    10  H    3.944584   3.111392   2.448055   1.771718   0.000000
+    11  Li   1.908458   5.167068   5.818439   5.933962   5.425395
+                   11
+    11  Li   0.000000
+ Symmetry turned off by external request.
+ Stoichiometry    C3H4LiO3(2)
+ Framework group  C1[X(C3H4LiO3)]
+ Deg. of freedom    27
+ Full point group                 C1      NOp   1
+ Rotational constants (GHZ):           7.1015474           1.9987998           1.7422492
+ Leave Link  202 at Fri Aug 21 15:51:59 2026, MaxMem=   536870912 cpu:               0.9 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l301.exe)
+ Basis read from rwf:  (5D, 7F)
+ No pseudopotential information found on rwf file.
+   173 basis functions,   260 primitive gaussians,   185 cartesian basis functions
+    25 alpha electrons       24 beta electrons
+       nuclear repulsion energy       254.4081151168 Hartrees.
+ IExCor= 4639 DFT=T Ex+Corr=wB97XD ExCW=0 ScaHFX=  1.000000
+ ScaDFX=  1.000000  1.000000  1.000000  1.000000 ScalE2=  1.000000  1.000000
+ IRadAn=      5 IRanWt=     -1 IRanGd=            0 ICorTp=0 IEmpDi=121
+ HFx  wShort=  0.000000 wLong=  0.200000 cFull=  0.222036 cShort=  0.000000 cLong=  0.777964
+ DFx  wShort=  0.000000 wLong=  0.200000 cFull=  0.000000 cShort=  0.000000 cLong=  1.000000
+ NAtoms=   11 NActive=   11 NUniq=   11 SFac= 1.00D+00 NAtFMM=   60 NAOKFM=F Big=F
+ Integral buffers will be    131072 words long.
+ Raffenetti 2 integral format.
+ Two-electron integral symmetry is turned off.
+ R6Disp:  Grimme-D2 Dispersion energy=       -0.0050355536 Hartrees.
+ Nuclear repulsion after empirical dispersion term =      254.4030795632 Hartrees.
+ No density basis found on file    724.
+ Force inversion solution in PCM.
+ ------------------------------------------------------------------------------
+ Polarizable Continuum Model (PCM)
+ =================================
+ Model                : PCM.
+ Atomic radii         : UFF (Universal Force Field).
+ Polarization charges : Total charges.
+ Charge compensation  : None.
+ Solution method      : Matrix inversion.
+ Cavity type          : Scaled VdW (van der Waals Surface) (Alpha=1.100).
+ Cavity algorithm     : GePol (No added spheres)
+                        Default sphere list used, NSphG=   11.
+                        Lebedev-Laikov grids with approx.  5.0 points / Ang**2.
+                        Smoothing algorithm: York/Karplus (Gamma=1.0000).
+                        Polarization charges: spherical gaussians, with
+                                              point-specific exponents (IZeta= 3).
+                        Self-potential: point-specific (ISelfS= 7).
+                        Self-field    : sphere-specific E.n sum rule (ISelfD= 2).
+ 1st derivatives      : Analytical E(r).r(x)/FMM algorithm (CHGder, D1EAlg=3).
+                        Cavity 1st derivative terms included.
+ Solvent              : Acetone, Eps=  18.500000 Eps(inf)=   1.846337
+ ------------------------------------------------------------------------------
+ Spheres list:
+ ISph  on   Nord     Re0    Alpha      Xe            Ye            Ze
+    1   C      1    1.9255  1.100      0.066312      0.597111     -0.090025
+    2   O      2    1.7500  1.100     -0.932692      0.351082     -0.777158
+    3   C      3    1.9255  1.100     -0.698975     -2.156905      0.351547
+    4   C      4    1.9255  1.100      0.608855     -1.730250     -0.212284
+    5   O      5    1.7500  1.100      0.975416     -0.400283      0.158640
+    6   O      6    1.7500  1.100      0.381274      1.693441      0.443058
+    7   H      7    1.4430  1.100     -0.936947     -1.925882      1.390702
+    8   H      8    1.4430  1.100     -1.454740     -2.633771     -0.270119
+    9   H      9    1.4430  1.100      1.423543     -2.344202      0.188234
+   10   H     10    1.4430  1.100      0.615578     -1.835313     -1.304150
+   11  Li     11    1.2255  1.100     -0.872159      3.126354      0.309357
+ ------------------------------------------------------------------------------
+ GePol: Number of generator spheres                  =      11
+ GePol: Total number of spheres                      =      11
+ GePol: Number of exposed spheres                    =      11 (100.00%)
+ GePol: Number of points                             =    1105
+ GePol: Average weight of points                     =       0.13
+ GePol: Minimum weight of points                     =   0.71D-10
+ GePol: Maximum weight of points                     =    0.20577
+ GePol: Number of points with low weight             =      51
+ GePol: Fraction of low-weight points (<1% of avg)   =       4.62%
+ GePol: Cavity surface area                          =    147.928 Ang**2
+ GePol: Cavity volume                                =    131.477 Ang**3
+ Leave Link  301 at Fri Aug 21 15:52:00 2026, MaxMem=   536870912 cpu:               9.8 elap:               0.2
+ (Enter /apps/commercial/G16/g16.linda.c01/l302.exe)
+ NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
+         NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
+ One-electron integrals computed using PRISM.
+ NBasis=   173 RedAO= T EigKep=  4.20D-05  NBF=   173
+ NBsUse=   173 1.00D-06 EigRej= -1.00D+00 NBFU=   173
+ Precomputing XC quadrature grid using
+ IXCGrd= 4 IRadAn=           5 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
+ Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
+ NSgBfM=   185   185   185   185   185 MxSgAt=    11 MxSgA2=    11.
+ Leave Link  302 at Fri Aug 21 15:52:01 2026, MaxMem=   536870912 cpu:              37.0 elap:               0.6
+ (Enter /apps/commercial/G16/g16.linda.c01/l303.exe)
+ DipDrv:  MaxL=1.
+ Leave Link  303 at Fri Aug 21 15:52:01 2026, MaxMem=   536870912 cpu:               9.3 elap:               0.2
+ (Enter /apps/commercial/G16/g16.linda.c01/l401.exe)
+ Initial guess from the checkpoint file:  "irc_forward.chk"
+ B after Tr=     0.000133   -0.000775   -0.000224
+         Rot=    1.000000    0.000067    0.000079   -0.000093 Ang=   0.02 deg.
+ Guess basis will be translated and rotated to current coordinates.
+ JPrj=2 DoOrth=T DoCkMO=T.
+ Initial guess <Sx>= 0.0000 <Sy>= 0.0000 <Sz>= 0.5000 <S**2>= 0.7546 S= 0.5023
+ Generating alternative initial guess.
+ ExpMin= 2.10D-02 ExpMax= 2.27D+03 ExpMxC= 3.41D+02 IAcc=3 IRadAn=         5 AccDes= 0.00D+00
+ Harris functional with IExCor= 4639 and IRadAn=       5 diagonalized for initial guess.
+ HarFok:  IExCor= 4639 AccDes= 0.00D+00 IRadAn=         5 IDoV= 1 UseB2=F ITyADJ=14
+ ICtDFT=  3500011 ScaDFX=  1.000000  1.000000  1.000000  1.000000
+ FoFCou: FMM=F IPFlag=           0 FMFlag=      100000 FMFlg1=           0
+         NFxFlg=           0 DoJE=T BraDBF=F KetDBF=T FulRan=T
+         wScrn=  0.000000 ICntrl=       500 IOpCl=  0 I1Cent=   200000004 NGrid=           0
+         NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
+ Symmetry not used in FoFCou.
+ Harris En= -335.889139496061    
+ Leave Link  401 at Fri Aug 21 15:52:03 2026, MaxMem=   536870912 cpu:              83.6 elap:               1.4
+ (Enter /apps/commercial/G16/g16.linda.c01/l502.exe)
+ Keep R1 and R2 ints in memory in canonical form, NReq=520614016.
+ FoFCou: FMM=F IPFlag=           0 FMFlag=           0 FMFlg1=           0
+         NFxFlg=           0 DoJE=F BraDBF=F KetDBF=F FulRan=T
+         wScrn=  0.000000 ICntrl=       600 IOpCl=  0 I1Cent=           0 NGrid=           0
+         NMat0=    1 NMatS0=  15051 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
+ Symmetry not used in FoFCou.
+ Two-electron integral symmetry not used.
+ UHF open shell SCF:
+ Using DIIS extrapolation, IDIIS=  1040.
+ NGot=   536870912 LenX=    83693633 LenY=    83658967
+ Requested convergence on RMS density matrix=1.00D-08 within 128 cycles.
+ Requested convergence on MAX density matrix=1.00D-06.
+ Requested convergence on             energy=1.00D-06.
+ No special actions if energy rises.
+
+ Cycle   1  Pass 1  IDiag  1:
+ CoulSu:  requested number of processors reduced to:  38 ShMem   1 Linda.
+ Inv3:  Mode=1 IEnd=     3663075.
+ Iteration    1 A*A^-1 deviation from unit magnitude is 2.66D-15 for    946.
+ Iteration    1 A*A^-1 deviation from orthogonality  is 1.55D-15 for    969    371.
+ Iteration    1 A^-1*A deviation from unit magnitude is 2.78D-15 for    628.
+ Iteration    1 A^-1*A deviation from orthogonality  is 1.96D-15 for    848    221.
+ CoulSu:  requested number of processors reduced to:  38 ShMem   1 Linda.
+ CoulSu:  requested number of processors reduced to:  38 ShMem   1 Linda.
+ E= -349.657199320934    
+ DIIS: error= 6.09D-04 at cycle   1 NSaved=   1.
+ NSaved= 1 IEnMin= 1 EnMin= -349.657199320934     IErMin= 1 ErrMin= 6.09D-04
+ ErrMax= 6.09D-04  0.00D+00 EMaxC= 1.00D-01 BMatC= 5.78D-04 BMatP= 5.78D-04
+ IDIUse=3 WtCom= 9.94D-01 WtEn= 6.09D-03
+ Coeff-Com:  0.100D+01
+ Coeff-En:   0.100D+01
+ Coeff:      0.100D+01
+ Gap=     0.687 Goal=   None    Shift=    0.000
+ Gap=     0.708 Goal=   None    Shift=    0.000
+ RMSDP=3.24D-04 MaxDP=1.47D-02              OVMax= 2.75D-03
+
+ Cycle   2  Pass 1  IDiag  1:
+ E= -349.657311428602     Delta-E=       -0.000112107668 Rises=F Damp=F
+ DIIS: error= 9.36D-05 at cycle   2 NSaved=   2.
+ NSaved= 2 IEnMin= 2 EnMin= -349.657311428602     IErMin= 2 ErrMin= 9.36D-05
+ ErrMax= 9.36D-05  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.80D-05 BMatP= 5.78D-04
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com: -0.179D-01 0.102D+01
+ Coeff:     -0.179D-01 0.102D+01
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=3.22D-05 MaxDP=1.09D-03 DE=-1.12D-04 OVMax= 9.30D-04
+
+ Cycle   3  Pass 1  IDiag  1:
+ E= -349.657316065238     Delta-E=       -0.000004636635 Rises=F Damp=F
+ DIIS: error= 6.30D-05 at cycle   3 NSaved=   3.
+ NSaved= 3 IEnMin= 3 EnMin= -349.657316065238     IErMin= 3 ErrMin= 6.30D-05
+ ErrMax= 6.30D-05  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.14D-05 BMatP= 1.80D-05
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com: -0.340D-01 0.451D+00 0.583D+00
+ Coeff:     -0.340D-01 0.451D+00 0.583D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=1.31D-05 MaxDP=3.81D-04 DE=-4.64D-06 OVMax= 3.54D-04
+
+ Cycle   4  Pass 1  IDiag  1:
+ E= -349.657318405697     Delta-E=       -0.000002340459 Rises=F Damp=F
+ DIIS: error= 1.98D-05 at cycle   4 NSaved=   4.
+ NSaved= 4 IEnMin= 4 EnMin= -349.657318405697     IErMin= 4 ErrMin= 1.98D-05
+ ErrMax= 1.98D-05  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.06D-06 BMatP= 1.14D-05
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com: -0.961D-02 0.358D-01 0.216D+00 0.758D+00
+ Coeff:     -0.961D-02 0.358D-01 0.216D+00 0.758D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=4.85D-06 MaxDP=1.09D-04 DE=-2.34D-06 OVMax= 2.33D-04
+
+ Cycle   5  Pass 1  IDiag  1:
+ E= -349.657318696072     Delta-E=       -0.000000290375 Rises=F Damp=F
+ DIIS: error= 9.78D-06 at cycle   5 NSaved=   5.
+ NSaved= 5 IEnMin= 5 EnMin= -349.657318696072     IErMin= 5 ErrMin= 9.78D-06
+ ErrMax= 9.78D-06  0.00D+00 EMaxC= 1.00D-01 BMatC= 2.44D-07 BMatP= 1.06D-06
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com:  0.187D-02-0.733D-01-0.126D-01 0.353D+00 0.731D+00
+ Coeff:      0.187D-02-0.733D-01-0.126D-01 0.353D+00 0.731D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=2.96D-06 MaxDP=7.50D-05 DE=-2.90D-07 OVMax= 1.56D-04
+
+ Cycle   6  Pass 1  IDiag  1:
+ E= -349.657318785985     Delta-E=       -0.000000089912 Rises=F Damp=F
+ DIIS: error= 3.86D-06 at cycle   6 NSaved=   6.
+ NSaved= 6 IEnMin= 6 EnMin= -349.657318785985     IErMin= 6 ErrMin= 3.86D-06
+ ErrMax= 3.86D-06  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.30D-08 BMatP= 2.44D-07
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com:  0.128D-02-0.103D-01-0.239D-01-0.613D-01 0.284D-01 0.107D+01
+ Coeff:      0.128D-02-0.103D-01-0.239D-01-0.613D-01 0.284D-01 0.107D+01
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=1.28D-06 MaxDP=2.79D-05 DE=-8.99D-08 OVMax= 9.65D-05
+
+ Cycle   7  Pass 1  IDiag  1:
+ E= -349.657318799801     Delta-E=       -0.000000013817 Rises=F Damp=F
+ DIIS: error= 1.49D-06 at cycle   7 NSaved=   7.
+ NSaved= 7 IEnMin= 7 EnMin= -349.657318799801     IErMin= 7 ErrMin= 1.49D-06
+ ErrMax= 1.49D-06  0.00D+00 EMaxC= 1.00D-01 BMatC= 4.51D-09 BMatP= 1.30D-08
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com:  0.100D-03 0.948D-02-0.627D-02-0.838D-01-0.118D+00 0.411D+00
+ Coeff-Com:  0.788D+00
+ Coeff:      0.100D-03 0.948D-02-0.627D-02-0.838D-01-0.118D+00 0.411D+00
+ Coeff:      0.788D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=5.23D-07 MaxDP=1.32D-05 DE=-1.38D-08 OVMax= 4.00D-05
+
+ Cycle   8  Pass 1  IDiag  1:
+ E= -349.657318802369     Delta-E=       -0.000000002567 Rises=F Damp=F
+ DIIS: error= 6.55D-07 at cycle   8 NSaved=   8.
+ NSaved= 8 IEnMin= 8 EnMin= -349.657318802369     IErMin= 8 ErrMin= 6.55D-07
+ ErrMax= 6.55D-07  0.00D+00 EMaxC= 1.00D-01 BMatC= 9.08D-10 BMatP= 4.51D-09
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com: -0.246D-03 0.653D-02 0.223D-02-0.222D-01-0.555D-01-0.712D-01
+ Coeff-Com:  0.328D+00 0.812D+00
+ Coeff:     -0.246D-03 0.653D-02 0.223D-02-0.222D-01-0.555D-01-0.712D-01
+ Coeff:      0.328D+00 0.812D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=2.51D-07 MaxDP=6.96D-06 DE=-2.57D-09 OVMax= 1.88D-05
+
+ Cycle   9  Pass 1  IDiag  1:
+ E= -349.657318802853     Delta-E=       -0.000000000484 Rises=F Damp=F
+ DIIS: error= 1.83D-07 at cycle   9 NSaved=   9.
+ NSaved= 9 IEnMin= 9 EnMin= -349.657318802853     IErMin= 9 ErrMin= 1.83D-07
+ ErrMax= 1.83D-07  0.00D+00 EMaxC= 1.00D-01 BMatC= 7.63D-11 BMatP= 9.08D-10
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com: -0.814D-04 0.777D-03 0.108D-02 0.327D-02-0.117D-02-0.654D-01
+ Coeff-Com: -0.352D-02 0.212D+00 0.853D+00
+ Coeff:     -0.814D-04 0.777D-03 0.108D-02 0.327D-02-0.117D-02-0.654D-01
+ Coeff:     -0.352D-02 0.212D+00 0.853D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=9.14D-08 MaxDP=3.70D-06 DE=-4.84D-10 OVMax= 5.65D-06
+
+ Cycle  10  Pass 1  IDiag  1:
+ E= -349.657318802897     Delta-E=       -0.000000000045 Rises=F Damp=F
+ DIIS: error= 8.19D-08 at cycle  10 NSaved=  10.
+ NSaved=10 IEnMin=10 EnMin= -349.657318802897     IErMin=10 ErrMin= 8.19D-08
+ ErrMax= 8.19D-08  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.76D-11 BMatP= 7.63D-11
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com:  0.110D-04-0.819D-03-0.666D-04 0.491D-02 0.958D-02-0.101D-01
+ Coeff-Com: -0.608D-01-0.689D-01 0.333D+00 0.793D+00
+ Coeff:      0.110D-04-0.819D-03-0.666D-04 0.491D-02 0.958D-02-0.101D-01
+ Coeff:     -0.608D-01-0.689D-01 0.333D+00 0.793D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=3.68D-08 MaxDP=1.23D-06 DE=-4.47D-11 OVMax= 2.00D-06
+
+ Cycle  11  Pass 1  IDiag  1:
+ E= -349.657318802903     Delta-E=       -0.000000000006 Rises=F Damp=F
+ DIIS: error= 2.43D-08 at cycle  11 NSaved=  11.
+ NSaved=11 IEnMin=11 EnMin= -349.657318802903     IErMin=11 ErrMin= 2.43D-08
+ ErrMax= 2.43D-08  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.87D-12 BMatP= 1.76D-11
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com:  0.127D-04-0.381D-03-0.150D-03 0.137D-02 0.367D-02 0.397D-02
+ Coeff-Com: -0.220D-01-0.499D-01 0.296D-01 0.286D+00 0.748D+00
+ Coeff:      0.127D-04-0.381D-03-0.150D-03 0.137D-02 0.367D-02 0.397D-02
+ Coeff:     -0.220D-01-0.499D-01 0.296D-01 0.286D+00 0.748D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=1.08D-08 MaxDP=2.76D-07 DE=-6.03D-12 OVMax= 4.97D-07
+
+ Cycle  12  Pass 1  IDiag  1:
+ E= -349.657318802904     Delta-E=       -0.000000000000 Rises=F Damp=F
+ DIIS: error= 1.11D-08 at cycle  12 NSaved=  12.
+ NSaved=12 IEnMin=12 EnMin= -349.657318802904     IErMin=12 ErrMin= 1.11D-08
+ ErrMax= 1.11D-08  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.72D-13 BMatP= 1.87D-12
+ IDIUse=1 WtCom= 1.00D+00 WtEn= 0.00D+00
+ Coeff-Com:  0.104D-05 0.395D-04-0.233D-04-0.454D-03-0.616D-03 0.232D-02
+ Coeff-Com:  0.428D-02-0.825D-03-0.408D-01-0.603D-01 0.147D+00 0.949D+00
+ Coeff:      0.104D-05 0.395D-04-0.233D-04-0.454D-03-0.616D-03 0.232D-02
+ Coeff:      0.428D-02-0.825D-03-0.408D-01-0.603D-01 0.147D+00 0.949D+00
+ Gap=     0.320 Goal=   None    Shift=    0.000
+ Gap=     0.347 Goal=   None    Shift=    0.000
+ RMSDP=6.23D-09 MaxDP=2.21D-07 DE=-3.41D-13 OVMax= 2.18D-07
+
+ CoulSu:  requested number of processors reduced to:  40 ShMem   1 Linda.
+ CoulSu:  requested number of processors reduced to:  37 ShMem   1 Linda.
+ Error on total polarization charges =  0.01318
+ SCF Done:  E(UwB97XD) =  -349.657318803     A.U. after   12 cycles
+            NFock= 12  Conv=0.62D-08     -V/T= 2.0099
+ <Sx>= 0.0000 <Sy>= 0.0000 <Sz>= 0.5000 <S**2>= 0.7546 S= 0.5023
+ <L.S>=  0.00000000000    
+ KE= 3.462278530205D+02 PE=-1.330661072105D+03 EE= 3.803728207179D+02
+ Annihilation of the first spin contaminant:
+ S**2 before annihilation     0.7546,   after     0.7500
+ Leave Link  502 at Fri Aug 21 15:52:26 2026, MaxMem=   536870912 cpu:            1053.8 elap:              22.5
+ (Enter /apps/commercial/G16/g16.linda.c01/l801.exe)
+ DoSCS=F DFT=T ScalE2(SS,OS)=  1.000000  1.000000
+ Range of M.O.s used for correlation:     1   173
+ NBasis=   173 NAE=    25 NBE=    24 NFC=     0 NFV=     0
+ NROrb=    173 NOA=    25 NOB=    24 NVA=   148 NVB=   149
+
+ **** Warning!!: The largest alpha MO coefficient is  0.36027619D+02
+
+
+ **** Warning!!: The largest beta MO coefficient is  0.38654100D+02
+
+ Leave Link  801 at Fri Aug 21 15:52:27 2026, MaxMem=   536870912 cpu:               2.1 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l1101.exe)
+ Leave Link 1101 at Fri Aug 21 15:52:27 2026, MaxMem=   536870912 cpu:               1.5 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l1102.exe)
+ Symmetrizing basis deriv contribution to polar:
+ IMax=3 JMax=2 DiffMx= 0.00D+00
+ Leave Link 1102 at Fri Aug 21 15:52:27 2026, MaxMem=   536870912 cpu:               3.3 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l1110.exe)
+ Leave Link 1110 at Fri Aug 21 15:52:28 2026, MaxMem=   536870912 cpu:               1.6 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l1002.exe)
+ Minotr:  UHF open shell wavefunction.
+ Leave Link 1002 at Fri Aug 21 15:52:28 2026, MaxMem=   536870912 cpu:               1.5 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l701.exe)
+ ... and contract with generalized density number  0.
+ Compute integral first derivatives.
+ R6Disp: Adding Grimme-D2 dispersion energy 1st derivatives to the gradient.
+ D1PCM: PCM CHGder 1st derivatives, ID1Alg=3 FixD1E=F DoIter=F DoCFld=F I1PDM=0.
+ GePol: Maximum number of non-zero 1st derivatives   =     216
+ Leave Link  701 at Fri Aug 21 15:52:31 2026, MaxMem=   536870912 cpu:             147.0 elap:               2.3
+ (Enter /apps/commercial/G16/g16.linda.c01/l702.exe)
+ L702 exits ... SP integral derivatives will be done elsewhere.
+ Leave Link  702 at Fri Aug 21 15:52:32 2026, MaxMem=   536870912 cpu:               1.5 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l703.exe)
+ Integral derivatives from FoFJK, PRISM(SPDF).
+ Compute integral first derivatives, UseDBF=F ICtDFT=           0.
+ Calling FoFJK, ICntrl=      2127 FMM=F ISym2X=0 I1Cent= 0 IOpClX= 1 NMat=1 NMatS=1 NMatT=0.
+ FoFJK:  IHMeth= 1 ICntrl=    2127 DoSepK=T KAlg= 0 I1Cent=           0 FoldK=F
+ IRaf=         1 NMat=       1 IRICut=       1 DoRegI=T DoRafI=F ISym2E= 0 IDoP0=0 IntGTp=1.
+ FoFCou: FMM=F IPFlag=           0 FMFlag=      100000 FMFlg1=         800
+         NFxFlg=           0 DoJE=F BraDBF=F KetDBF=F FulRan=T
+         wScrn=  0.000000 ICntrl=      2527 IOpCl=  0 I1Cent=           0 NGrid=           0
+         NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
+ Symmetry not used in FoFCou.
+ Leave Link  703 at Fri Aug 21 15:52:36 2026, MaxMem=   536870912 cpu:             235.5 elap:               3.7
+ (Enter /apps/commercial/G16/g16.linda.c01/l716.exe)
+ Dipole        =-1.32988895D+00 2.93971400D+00 5.09016618D-01
+ Polarizability= 0.00000000D+00 0.00000000D+00 0.00000000D+00
+                 0.00000000D+00 0.00000000D+00 0.00000000D+00
+ -------------------------------------------------------------------
+ Center     Atomic                   Forces (Hartrees/Bohr)
+ Number     Number              X              Y              Z
+ -------------------------------------------------------------------
+      1        6           0.001558046    0.000999137    0.000921102
+      2        8           0.000113266    0.000714490   -0.001450738
+      3        6           0.001426997   -0.002074071    0.000383392
+      4        6          -0.004792328    0.002201646    0.000284890
+      5        8          -0.002122724   -0.000057434    0.002231993
+      6        8           0.000857213    0.000515926   -0.001209929
+      7        1           0.000110228   -0.000154587    0.000282071
+      8        1           0.000035174   -0.000214336    0.000115256
+      9        1           0.003615634   -0.002210141    0.000687214
+     10        1          -0.000403139    0.000453058   -0.002297882
+     11        3          -0.000398368   -0.000173688    0.000052632
+ -------------------------------------------------------------------
+ Cartesian Forces:  Max     0.004792328 RMS     0.001534291
+ Z-matrix is all fixed cartesians, so copy forces.
+ Leave Link  716 at Fri Aug 21 15:52:36 2026, MaxMem=   536870912 cpu:               2.0 elap:               0.1
+ (Enter /apps/commercial/G16/g16.linda.c01/l123.exe)
+ IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC-IRC
+ Error in corrector energy =          -0.0001058407
+ Magnitude of corrector gradient =     0.0059719399
+ Magnitude of analytic gradient =      0.0088138296
+ Magnitude of difference =             0.0073514921
+ Angle between gradients (degrees)=   55.7131
+ Pt 21 Step number  20 out of a maximum of  20
+ Using modified Bulirsch-Stoer corrector integration.
+   Using distance weighted interpolants to fit PES.
+ PreDWI: IReCr0= 2 IReCr1= 1 IReCr2= 1 IReCr3= 1
+ Modified Bulirsch-Stoer Extrapolation Cycles:
+    EPS =    0.000010000000000
+    Cycle     1 NS=    48
+      PEZero:  N= 2 I= 1 D=  1.78D-03 Err=  1.60D-04
+    Cycle     2 NS=    64 Truncation Error =  0.000160359
+      PEZero:  N= 3 I= 2 D=  1.78D-03 Err=  1.07D-04
+      PEZero:  N= 3 I= 1 D=  3.56D-03 Err=  6.20D-07
+    Cycle     3 NS=    96 Truncation Error =  0.000000620
+ BS completed in    3 cycles and     208 integration steps.
+ Maximum DWI energy   std dev =  0.000018029 at pt    -1
+ Maximum DWI gradient std dev =  0.362012992 at pt    59
+ SUMMARY OF CORRECTOR INTEGRATION:
+   Predictor End Point Energy =  -349.657348
+   Old End Point Energy       =  -349.657319
+   Corrected End Point Energy =  -349.657427
+   Predictor End-Start Dist.  =     0.342075
+   Old End-Start Dist.        =     0.341187
+   New End-Start Dist.        =     0.340583
+   New End-Old End Dist.      =     0.062911
+ CORRECTOR INTEGRATION CONVERGENCE:
+   Recorrection delta-x convergence threshold:    0.010000
+   Delta-x Convergence NOT Met
+ Maximum number of corrector steps exceded.
+ Error termination via Lnk1e in /apps/commercial/G16/g16.linda.c01/l123.exe at Fri Aug 21 15:52:37 2026.
+ Job cpu time:       1 days  7 hours 44 minutes 31.4 seconds.
+ Elapsed time:       0 days  0 hours 37 minutes 45.4 seconds.
+ File lengths (MBytes):  RWF=     89 Int=      0 D2E=      0 Chk=     10 Scr=      1
+
+l123.exe:4927 terminated with signal 11 at PC=2aaaab45d657 SP=7fffffff5f48.  Backtrace:
+/lib64/libc.so.6(kill+0x7)[0x2aaaab45d657]
+/apps/commercial/G16/g16.linda.c01/l123.exe[0x434e35]
+/apps/commercial/G16/g16.linda.c01/l123.exe[0x44e87a]
+/apps/commercial/G16/g16.linda.c01/l123.exe[0x46c93b]
+/apps/commercial/G16/g16.linda.c01/l123.exe[0x461c8f]
+/apps/commercial/G16/g16.linda.c01/l123.exe[0x42a5f5]
+/apps/commercial/G16/g16.linda.c01/l123.exe[0x41ad0f]
+/apps/commercial/G16/g16.linda.c01/l123.exe[0x413ad0]
+/apps/commercial/G16/g16.linda.c01/l123.exe[0x410fdb]
+/apps/commercial/G16/g16.linda.c01/l123.exe[0x410ee4]
+/lib64/libc.so.6(__libc_start_main+0xf5)[0x2aaaab449555]
+/apps/commercial/G16/g16.linda.c01/l123.exe[0x40b629]

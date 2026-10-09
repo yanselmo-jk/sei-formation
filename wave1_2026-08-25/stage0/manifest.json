@@ -1,0 +1,44 @@
+{
+ "purpose": "Stage 0 -- MTD-pilot comparator (02_METHOD_SPEC.md §39.40(d)-RESULT/§39.42(d)/§39.47(b)) -- runs in PARALLEL with S3 wave-1, not part of its 2-attempt count. NOT submitted by this script.",
+ "n_seeds": 12,
+ "temp_k": 1500,
+ "time_ps": 100.0,
+ "reactant_xyz": "inputs/li_ec2_radical_reactant.xyz",
+ "charge": 0,
+ "multiplicity": 2,
+ "job_key": "stage0_mtd_comparator",
+ "job_dir_remote": "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work/jobs/stage0_mtd_comparator",
+ "target_blindness": "payload/stage0_md.sh's classifier is target-blind by design (§39.40(e)'s BLINDNESS requirement) -- it does not hardcode T1-T4's specific atom indices. Sealed target file recorded below (path/sha256, verified against the expected hash baked into this builder at build time).",
+ "sealed_targets_file": {
+  "path": "src/pilot_package/config/stage0_sealed_targets_T1-T4.json",
+  "sha256": "69ce2848ca346ccc107178104b85dcc4cb7a43212d71bb7c966f6450bbc3f2c2",
+  "verified_against_expected": true,
+  "note": "sha256 computed HERE, at build time, from the committed file, and checked against SEALED_TARGETS_SHA256_EXPECTED baked into this builder -- a mismatch refuses the build rather than silently reporting a tampered file as sealed. Sealer identity/timestamp are recorded in the sealed file's own header, not re-derived here to avoid a second, driftable copy of that claim."
+ },
+ "assumptions_not_independently_verified": {
+  "pkg_root": "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu",
+  "workdir": "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work",
+  "_source": "same confirmed-real deployment data point as build_wave1_rb_submission.py's own manifest -- verify before trusting if the deployment path has changed"
+ },
+ "wall_h": 6.0,
+ "cores": 12,
+ "qsub_file": "stage0_mtd_comparator.qsub",
+ "cmd_file": "stage0_mtd_comparator.cmd.sh",
+ "deployed_package_fingerprint_check": {
+  "expected": "b94510460851012e",
+  "note": "qsub refuses to run (exit 9) if $SEI_PKG_ROOT's own recomputed package_fingerprint (via common.sh's sei_pkg_fingerprint(), same workdir-aware exclusion logic it already uses) doesn't match this -- catches a stale/mismatched deployment before it silently ignores env vars this build relies on."
+ },
+ "provenance": {
+  "package_name": "sei_pilot_package",
+  "package_version": "0.1.0",
+  "package_fingerprint": "b94510460851012e",
+  "schema_version": "1.1",
+  "schema_base_version": "1.0",
+  "generated_at_utc": "2026-08-25T10:35:36Z",
+  "generated_at_epoch": 1787654136,
+  "python_version": "3.14.6",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "random_seed": null,
+  "invocation": "src/pilot_package/tools/build_wave1_stage0_submission.py --out-dir wave1_2026-08-25/stage0"
+ }
+}

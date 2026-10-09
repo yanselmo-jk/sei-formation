@@ -1,0 +1,107 @@
+{
+  "_doc": "왕복(RT) 구조 정의 — L4 배치 통합 계획기의 기준 데이터.",
+  "_source": "03_COMPUTE_PLAN.md §R8.5 (왕복 구조 확정 7회) + ADR-019 + 02_METHOD_SPEC §23",
+  "_why_a_file": "ADR-001: 계획 파라미터는 코드가 아니라 데이터. 문서가 바뀌면 이 파일만 고친다. `batch.sh drift` 가 문서와의 어긋남을 잡아준다.",
+  "schema_version": "1.0",
+
+  "targets": {
+    "roundtrips": 7,
+    "_roundtrips_source": "§R8.5 '왕복 구조 확정 — 7회' (ADR-019 Decision 4에서 재확인)",
+    "_historical_note": "§R3.4의 L4 레버 표는 '왕복 8회 → 5회'로 적혀 있다. 그것은 Round 3 시점 수치이고, Round 8에서 구조가 7회로 확정됐다. 상충이 아니라 갱신이며, 계획기는 최신값(7)을 기준으로 판정한다.",
+    "roundtrip_calendar_days": 3.5,
+    "_roundtrip_calendar_source": "§R2-2 왕복 1회 = 3.5일 (사용자 수동 제출, ADR-004)",
+    "max_wall_h_per_job": 24.0,
+    "_max_wall_source": "ADR-004 (클러스터 wall 상한)",
+    "user_actions_per_rt": 1,
+    "_user_actions_source": "§R2-6 설계원칙 1 — 사용자 개입은 sbatch 1회"
+  },
+
+  "roundtrips": [
+    {"id": "RT-1", "week": 2, "title": "파일럿 패키지",
+     "contents": ["프로브", "P1", "P1b", "P2", "P3", "P4", "P5(권고)"],
+     "cuttable": false, "must_not_split": false,
+     "return_artifact": "sei_probe_report.json",
+     "note": "모든 단가가 [ESTIMATE]인 상태를 끝내는 유일한 수단. 임계 경로 맨 앞."},
+
+    {"id": "RT-2", "week": 4, "title": "S1 전체 단일 배치",
+     "contents": ["tier-1 cluster DFT", "mechanism TS 6건", "FF 후보 3종 투기",
+                  "고전 MD", "PM7 처리량 프로브(Q17)", "τ_eq 프로브(U-21)", "P5 소분자 단가"],
+     "cuttable": false, "must_not_split": true,
+     "return_artifact": "S1 barrier/λ 세트 + 프로브 실측치",
+     "note": "AIMD 0. 프로브는 순서 의존이 있다: 고전 MD 스냅샷 → PM7 τ_eq (§R11.6)."},
+
+    {"id": "RT-3", "week": 7, "title": "S2 전체 자율 DAG",
+     "contents": ["3엔진 발견 병렬", "열거·여과", "thermo DFT", "xTB TS 앵커 2e5",
+                  "surrogate v0", "랭킹"],
+     "cuttable": false, "must_not_split": true,
+     "split_penalty_weeks": [1.5, 2.0],
+     "return_artifact": "발견 원장 + 작업 network 스냅샷 + surrogate v0 + 랭킹",
+     "note": "🔴 L4의 핵심. 단일 제출 7.5일, 사용자 개입 sbatch 1회. 쪼개면 달력 1.5~2.0주 손실."},
+
+    {"id": "RT-4", "week": 10, "title": "S3 wave 1~2 (rolling)",
+     "contents": ["목표종 역추적 TS", "flux 상위 TS"],
+     "cuttable": false, "must_not_split": false,
+     "return_artifact": "TS/IRC 결과 배치 1", "note": "SG-3 순위 안정성 게이트 통과가 조건."},
+
+    {"id": "RT-5", "week": 13, "title": "S3 wave 3",
+     "contents": ["flux 잔여", "민감도 지목"],
+     "cuttable": "partial", "must_not_split": false,
+     "return_artifact": "TS/IRC 결과 배치 2", "note": "🟡 축소 가능."},
+
+    {"id": "RT-6", "week": 16, "title": "S4 + 결손 보충",
+     "contents": ["강성 ODE 적분", "결손 TS 보충"],
+     "cuttable": false, "must_not_split": false,
+     "return_artifact": "S4 수율/조성비 + 민감도"},
+
+    {"id": "RT-7", "week": 18, "title": "데모 1계 (전 파이프라인 자율 DAG 1회)",
+     "contents": ["신규 조성 1계 전 구간 재실행"],
+     "cuttable": true, "must_not_split": true,
+     "return_artifact": "이전가능성 데모",
+     "note": "🟢 유일한 안전 노브 (ADR-019). 일정이 깨지면 여기부터 자른다."}
+  ],
+
+  "rt3_dag": {
+    "_doc": "RT-3 내부 구조 (§R8.5). 단일 제출 안에서 스케줄러가 의존성을 처리한다.",
+    "total_days": 7.5,
+    "stages": [
+      {"id": "discover", "title": "3엔진 발견 병렬", "days": 1.0, "depends_on": [],
+       "parallel": true, "writes": "ledger"},
+      {"id": "enumerate", "title": "열거·여과", "days": 0.5, "depends_on": ["discover"],
+       "writes": "ledger"},
+      {"id": "thermo_dft", "title": "thermo DFT", "days": 3.0, "depends_on": ["enumerate"],
+       "writes": "working_network"},
+      {"id": "xtb_ts_anchor", "title": "xTB TS 앵커 2e5", "days": 2.0,
+       "depends_on": ["thermo_dft"], "writes": "working_network",
+       "_dependency_note": "🔴 문서(§R8.5)는 '… → thermo DFT 3일 → xTB TS 앵커 2일 → …' 로 **직렬** 서술했고 총 7.5일 = 단순 합이다. 여기서는 문서를 그대로 옮긴다. 병렬 가능 여부는 아래 open_questions 참조 — coder가 임의로 병렬화하지 않는다."},
+      {"id": "surrogate_v0", "title": "surrogate v0", "days": 0.5,
+       "depends_on": ["thermo_dft", "xtb_ts_anchor"], "writes": "working_network"},
+      {"id": "rank", "title": "랭킹", "days": 0.5, "depends_on": ["surrogate_v0"],
+       "writes": "working_network"}
+    ]
+  },
+
+  "open_questions": [
+    {"id": "Q-RT3-PAR",
+     "question": "RT-3의 thermo DFT(3일)와 xTB TS 앵커(2일)는 서로 독립인가?",
+     "why_it_matters": "둘 다 '열거·여과' 산출물만 필요해 보인다. 병렬이면 RT-3 임계경로가 7.5일 → 5.5일로 **달력 2일** 단축된다(왕복은 그대로 1회).",
+     "why_not_decided": "§R8.5는 화살표로 직렬 서술했다. 자원 경합(같은 큐·같은 core 예산)으로 실제로는 직렬일 수 있다. **방법론/자원 판단이므로 engineer 확인이 필요하다.**",
+     "owner": "engineer",
+     "status": "[UNRESOLVED]"}
+  ],
+
+  "data_structure_rules": {
+    "_source": "02_METHOD_SPEC.md §23.1 (ADR-027) — 정확성 요구이지 성능 요구가 아니다.",
+    "ledger": {"append_only": true, "prunable": false,
+               "purpose": "Ĉ / Chao1 / capture-recapture 는 오직 여기서만 계산된다"},
+    "working_network": {"append_only": false, "prunable": true,
+                        "purpose": "L0~L3 가지치기, microkinetics, DRC, S3 선별"},
+    "forbidden": [
+      {"rule": "prune_ledger",
+       "why": "가지친 뒤 Ĉ를 계산하면 f1·f2가 오염되어 완결성 수치가 통째로 무의미해진다"},
+      {"rule": "completeness_from_working_network",
+       "why": "가지친 network에서 Ĉ/Chao1을 계산하면 같은 오염이 발생한다"},
+      {"rule": "manual_clock_sync",
+       "why": "발견(시계 A)과 S3 wave(시계 B)의 결합은 SG-3이 자동으로 한다. 손으로 동기화하는 코드를 넣으면 게이트가 무력화된다"}
+    ]
+  }
+}

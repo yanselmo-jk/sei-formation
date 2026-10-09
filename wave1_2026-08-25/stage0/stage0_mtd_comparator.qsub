@@ -1,0 +1,56 @@
+#!/bin/sh
+#PBS -V
+#PBS -q normal
+#PBS -N sei_stage0_mtd_comparator
+#PBS -A gaussian
+#PBS -l select=1:ncpus=12:mpiprocs=12
+#PBS -l walltime=06:00:00
+# sei_pilot_package — PBS/Torque 백엔드
+#
+# 🔴 이 형태는 **사용자가 이 클러스터에서 실제로 돌려온 스크립트**를 정본으로 삼아
+#    맞춘 것이다. 이전 판은 필터 훅(`job_submit_filter`)에 4/4 거부됐다.
+#    바꿀 때는 `tests/test_pbs_script_shape.py` 의 정본 비교를 함께 보라.
+#    [UNVERIFIED — 사용자 클러스터에서만 확인 가능]
+set -u
+
+# [critic9 §5] 용매 정책의 env 주입 채널은 **테스트용**이다. `#PBS -V` 가 로그인 환경을
+# 잡으로 들여오므로, 사이트 프로파일에 이 이름이 우연히/악의로 섞여 config 결정을
+# 조용히 덮는 경로를 여기서 끊는다 — 잡 안에서 정책은 config 한 곳에서만 온다.
+unset SEI_SOLVENT_POLICY_JSON 2>/dev/null || true
+unset SEI_C8_ENDPOINTS_JSON 2>/dev/null || true
+unset SEI_QC_MODREDUNDANT_FILE 2>/dev/null || true
+# 🔴 [critic9 BLOCKER] SEI_QC_PURPOSE=smoke 가 제출 환경에서 상속되면 본계산
+# payload 전부가 smoke 로 위장해 deck_verified 게이트를 통과한다 — 이 게이트는
+# 미검증 덱에서 8,000+ core-h 를 지키는 유일한 것이다. 잡 시작 시 반드시 끊는다.
+unset SEI_QC_PURPOSE 2>/dev/null || true
+
+cd "${PBS_O_WORKDIR:-.}" || exit 1
+
+export SEI_ITEM="stage0_mtd_comparator"
+export SEI_PARTITION="normal"
+export SEI_PKG_ROOT="/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu"
+export SEI_STAGE0_CHARGE="0"
+export SEI_STAGE0_MULTIPLICITY="2"
+export SEI_STAGE0_N_SEEDS="12"
+export SEI_STAGE0_REACTANT_XYZ="inputs/li_ec2_radical_reactant.xyz"
+export SEI_STAGE0_TEMP_K="1500"
+export SEI_STAGE0_TIME_PS="100.0"
+export SEI_WALL_H="6.0000"
+export SEI_WORKDIR="/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work"
+export SEI_KEY="stage0_mtd_comparator"
+export SEI_LOGICAL_KEY="stage0_mtd_comparator"
+export SEI_JOB_DIR="/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work/jobs/stage0_mtd_comparator"
+export SEI_NODES="1"
+export SEI_CORES_PER_NODE="12"
+export SEI_TOTAL_CORES="12"
+export SEI_SCHEDULER="pbs"
+export SEI_JOBID="${PBS_JOBID:-none}"
+
+. "${SEI_PKG_ROOT}/payload/common.sh"
+SEI_EXPECTED_PKG_FINGERPRINT="b94510460851012e"
+SEI_ACTUAL_PKG_FINGERPRINT="$(sei_pkg_fingerprint)"
+if [ "$SEI_ACTUAL_PKG_FINGERPRINT" != "$SEI_EXPECTED_PKG_FINGERPRINT" ]; then
+  echo "[FATAL] deployed package fingerprint ($SEI_ACTUAL_PKG_FINGERPRINT) != expected ($SEI_EXPECTED_PKG_FINGERPRINT) at $SEI_PKG_ROOT. Two known false-alarm causes, check these BEFORE assuming a real mismatch: (1) SEI_WORKDIR renamed away from the default sei_pilot_work under a non-default --workdir, (2) a stray .py/.sh/.tmpl/.inp/.xyz/.json file was added directly under the package root outside sei_pilot_work/. If neither applies, this is a genuine stale/wrong deployment -- rebuild+redeploy the package, then resubmit. Refusing to run." >&2
+  exit 9
+fi
+sei_job_main bash "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work/jobs/stage0_mtd_comparator/stage0_mtd_comparator.cmd.sh"

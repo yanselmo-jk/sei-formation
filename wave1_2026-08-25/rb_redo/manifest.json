@@ -1,0 +1,38 @@
+{
+ "purpose": "S3 wave-1 attempt 2: R-B redo (single-ended relaxed scan -> ts_opt -> IRC fwd/rev), full production chain (02_METHOD_SPEC.md §39.136(1)/(2); 03_COMPUTE_PLAN.md §R39.88/89) -- NOT submitted by this script.",
+ "reaction": "R-B",
+ "method": "relaxed_scan",
+ "reactant_endpoint_key": "endpoint_prep_reactant",
+ "job_key": "U56_RB_scan_wave1",
+ "job_dir_remote": "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work/jobs/U56_RB_scan_wave1",
+ "reused_from": "same production harness that built U56_RA_scan/U56_RB_scan (payload/U56.sh via sei_pilot.scheduler.PbsAdapter.write_script, the same code path build_spec()/cmd_emit_script use) -- not a new deck-building tool",
+ "assumptions_not_independently_verified": {
+  "pkg_root": "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu",
+  "workdir": "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work",
+  "qc_module": "gaussian/g16.c01.linda",
+  "qc_login_path": "/apps/commercial/G16/g16.linda.c01/g16",
+  "_source": "ORIGINAL U56_RB_scan.qsub's own recorded values -- the only confirmed-real deployment/QC-detection data point on record; verify before trusting if the deployment path or QC module has changed"
+ },
+ "recorrect_never_default": "picked up automatically from config/qc_levels.json's irc_forward/irc_reverse templates (§39.136(2), landed in the same pass as this tool) -- nothing to set here",
+ "deployed_package_fingerprint_check": {
+  "expected": "b94510460851012e",
+  "note": "qsub refuses to run (exit 9) if $SEI_PKG_ROOT's own recomputed package_fingerprint (via common.sh's sei_pkg_fingerprint(), same workdir-aware exclusion logic it already uses) doesn't match this -- catches a stale/mismatched deployment before it silently ignores env vars this build relies on (SEI_U56_STOP_AFTER included, though this R-B redo does not set it)."
+ },
+ "wall_h": 10.9375,
+ "cores": 64,
+ "qsub_file": "U56_RB_scan_wave1.qsub",
+ "cmd_file": "U56_RB_scan_wave1.cmd.sh",
+ "provenance": {
+  "package_name": "sei_pilot_package",
+  "package_version": "0.1.0",
+  "package_fingerprint": "b94510460851012e",
+  "schema_version": "1.1",
+  "schema_base_version": "1.0",
+  "generated_at_utc": "2026-08-25T10:35:36Z",
+  "generated_at_epoch": 1787654136,
+  "python_version": "3.14.6",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "random_seed": null,
+  "invocation": "src/pilot_package/tools/build_wave1_rb_submission.py --out-dir wave1_2026-08-25/rb_redo"
+ }
+}

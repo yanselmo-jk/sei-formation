@@ -1,0 +1,45 @@
+--- /tmp/claude-1000/-home-yanselmo-0-claude-projects-sei-formation/294521f6-4432-4fde-8635-18d1b3c9a867/scratchpad/frozen/sei_pilot_cpu/sei_pilot/criteria/p5.py	2026-08-19 13:22:43.000000000 +0900
++++ src/pilot_package/sei_pilot/criteria/p5.py	2026-08-19 13:46:49.854876961 +0900
+@@ -35,6 +35,27 @@
+     return xs[n // 2] if n % 2 else 0.5 * (xs[n // 2 - 1] + xs[n // 2])
+ 
+ 
++def _route_fields(r):
++    """Two fields, never one: the route text AND whether it is complete.
++
++    Accepts both the current shape (`route_echoed` + `route_echoed_is_complete`,
++    written by `g16.summarize`) and the LEGACY shape (a bare `route` string from
++    an RT-1-era report, which is the shape that carried the 70-column defect).
++    """
++    if "route_echoed" in (r or {}):
++        return {"route_echoed": r.get("route_echoed"),
++                "route_echoed_is_complete": r.get("route_echoed_is_complete"),
++                "route_echo_completeness_evidence": (
++                    (r.get("route_echo") or {}).get(
++                        "route_echo_completeness_evidence"))}
++    rec = g16.route_record_from_stored_string(
++        r.get("route"), source="legacy `route` field in a returned report")
++    return {"route_echoed": rec["route_echoed"],
++            "route_echoed_is_complete": rec["route_echoed_is_complete"],
++            "route_echo_completeness_evidence":
++                rec["route_echo_completeness_evidence"]}
++
++
+ def normalize_rows(raw_rows):
+     """payload가 쓴 종별 결과 → 정규화된 행. **버리지 않는다.**
+ 
+@@ -74,7 +95,13 @@
+             "failure_reason": r.get("failure_reason"),
+             "g16_cpu_seconds": r.get("g16_cpu_seconds"),
+             "qc_code": r.get("qc_code"),
+-            "route": r.get("route"),
++            # 🔴 B-1: the bare `route` field is GONE. RT-1 stored three routes cut
++            #    at column 70 under that name, and absence was read off them.
++            #    A route now always travels with its completeness. A LEGACY row
++            #    (`route`, from a returned RT-1-era report) is classified by
++            #    `route_record_from_stored_string`, which can REFUTE completeness
++            #    but never establish it.
++            **_route_fields(r),
+             "level_label": r.get("level_label"),
+         }
+         out.append(row)

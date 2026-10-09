@@ -1,0 +1,31 @@
+{
+ "purpose": "diagnostic (Track A item 2, 02_METHOD_SPEC.md 39.113(e)/39.114(2)) -- NOT a production job, not wired into any plan Item, not submitted by this script",
+ "question": "does turning off the failing corrector recorrection step (or changing the step size) let the IRC walk past the geometry where it died -- the integrator-tolerance hypothesis, competing with build_u56_ra_stability_probe.py's wavefunction-instability hypothesis. NEITHER substitutes for the other (39.114(2)): a successful restart shows the crash is numerically avoidable but does not by itself rule out a real electronic-structure quirk worth knowing about for other jobs in this class.",
+ "source_checkpoint": "/home/yanselmo/0_claude_projects/sei_formation/cpu_machine_pilot_results/sei_pilot_work/jobs/U56_RA_scan/irc_forward.chk",
+ "source_ts_geometry_for_element_coverage_only": "/home/yanselmo/0_claude_projects/sei_formation/cpu_machine_pilot_results/sei_pilot_work/jobs/U56_RA_scan/ts.xyz",
+ "direction": "forward",
+ "recorrect_never": true,
+ "step_size": null,
+ "deck_file": "irc_recorrect_probe.gjf",
+ "checkpoint_file": "irc_forward_recorrect_probe.chk",
+ "route": "#p nosymm wB97XD/gen scrf=(pcm,solvent=acetone,read) geom=check guess=read irc=(restart,recorrect=never) Int(Grid=UltraFine)",
+ "level": "level3",
+ "level_label": "G-3",
+ "charge": 0,
+ "multiplicity": 2,
+ "route_syntax_status": "[NEEDS VERIFICATION] `irc=(restart,...)` + `geom=check guess=read` is standard documented Gaussian IRC-restart syntax, but this project has no G16 install to smoke-test THIS combination against (unlike stability_test's route, which reuses the exact functional/basis/solvent fragment every real production job this round already exercised). A malformed route fails at ~zero cost, same as any other route-smoke failure this project treats as informative, not silent -- read the result with this caveat.",
+ "estimated_cost": "restart of an existing IRC from checkpoint, ~29 remaining points at most (maxpoints=30 minus 20 already computed and stored) -- a small fraction of the ~660 core-h a fresh scan+IRC for this reaction costs",
+ "provenance": {
+  "package_name": "sei_pilot_package",
+  "package_version": "0.1.0",
+  "package_fingerprint": "b023132f4c2bc033",
+  "schema_version": "1.1",
+  "schema_base_version": "1.0",
+  "generated_at_utc": "2026-08-21T11:44:37Z",
+  "generated_at_epoch": 1787312677,
+  "python_version": "3.14.6",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "random_seed": null,
+  "invocation": "tools/build_u56_ra_irc_recorrect_probe.py --job-dir /home/yanselmo/0_claude_projects/sei_formation/cpu_machine_pilot_results/sei_pilot_work/jobs/U56_RA_scan --out-dir /home/yanselmo/0_claude_projects/sei_formation/cpu_machine_pilot_results/u56_diagnostics_2026-08-21/4_irc_recorrect_restart"
+ }
+}

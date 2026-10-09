@@ -1,0 +1,42 @@
+{
+ "purpose": "diagnostic (EulerPC escalation, 02_METHOD_SPEC.md §39.129; 03_COMPUTE_PLAN.md §R39.85) -- BACKUP TIER, staged for logistics alongside Candidate B, NOT a promotion: only submit if Candidate B's own mandatory checks show it failed. NOT a production job, not wired into any plan Item, not submitted by this script.",
+ "smoke": false,
+ "question": "does swapping HPC's predictor for EulerPC (recorrect=never and stepsize=2 unchanged from Candidate B) let the reverse IRC walk cleanly past arc 2.0-2.3? EulerPC shares HPC's own Bulirsch-Stoer/DWI corrector (confirmed from Gaussian's documentation, §39.129) -- a repeat non-convergence warning there would be direct evidence the pathology is corrector-side, not predictor-side, since the ONLY variable changed vs. Candidate B is the predictor.",
+ "mandatory_post_run_checks": [
+  "Euler-predictor echo: confirm EulerPC actually ran, not a silent fallback to HPC -- the positive Euler-predictor string is [NEEDS VERIFICATION] (no G16 install, never run before); at minimum confirm 'Using LQA Reaction Path Following.' (HPC's own predictor echo) does NOT appear.",
+  "Recorrection delta-x convergence threshold: grep -ac, expect 0.",
+  "read the log at the point(s) landing near arc 2.0-2.3 SPECIFICALLY, not just the final summary table -- Candidate A's own breakdown region.",
+  "tier-specific: does 'WARNING: Bulirsch-Stoer Method is not Converging' recur near arc 2.0-2.3 -- the direct test of the shared-corrector finding (§39.129); read before claiming EulerPC worked or did not work for a reason distinct from Candidate B's own result."
+ ],
+ "source_ts_geometry": "/home/yanselmo/0_claude_projects/sei_formation/cpu_machine_pilot_results/sei_pilot_work/jobs/U56_RA_scan/ts.xyz",
+ "not_a_restart": "from-scratch IRC via calcfc from the certified TS geometry -- no checkpoint involved, unlike build_u56_ra_irc_recorrect_probe.py",
+ "single_variable_change_vs_candidate_b": "direction, recorrect=never, and stepsize are all IDENTICAL to Candidate B -- the only route difference is the EulerPC predictor keyword and the wider maxpoints hedge, so a pass/repeat-failure result is attributable to the predictor/corrector combination alone, not confounded with a simultaneous step-size change (§39.129(3)).",
+ "direction": "reverse",
+ "recorrect_never": true,
+ "eulerpc": true,
+ "stepsize": 2,
+ "stepsize_f": 0.2,
+ "maxpoints": 100,
+ "deck_file": "irc_eulerpc_probe.gjf",
+ "checkpoint_file": "irc_reverse_eulerpc_probe.chk",
+ "route": "#p nosymm wB97XD/gen scrf=(pcm,solvent=acetone,read) irc=(calcfc,reverse,EulerPC,recorrect=never,stepsize=2,maxpoints=100) Int(Grid=UltraFine)",
+ "level": "level3",
+ "level_label": "G-3",
+ "charge": 0,
+ "multiplicity": 2,
+ "route_syntax_status": "[NEEDS VERIFICATION] `irc=(calcfc,reverse,EulerPC,recorrect=never,stepsize=...,maxpoints=...)` combined this way has never been route-smoked anywhere in this project -- unlike Candidate B, this tier's keyword COMBINATION itself is entirely unverified (not just its outcome), which is why a syntax smoke is recommended before the full run. No known silent-override mechanism applies (no checkpoint to inherit a stale option from), but EulerPC could in principle be silently ignored and fall back to G16's default HPC without erroring -- see mandatory_post_run_checks[0].",
+ "estimated_cost": "from-scratch IRC redo, ~63 points expected to clear the arc>=4.27 floor (StepSize=2 unchanged from Candidate B, f=0.20 -- IRC_STEPSIZE_ESTIMATED_POINTS_TO_FLOOR, NOT maxpoints=100, which is a wider safety hedge, not the target count) at a WIDENED 1.92-7.3 core-h/pt bracket [MEASURED anchor at the optimistic end, ESTIMATE -- 2x arbitrary widening at the pessimistic end for the cruder-predictor/more-corrector-work risk, engineer14 §R39.85] -- targeted/expected 121.0-459.9 core-h (63 points), requested ceiling 192.0-730.0 core-h (100 points, full maxpoints=100 budget consumed) -- engineer14 §R39.85 (03_COMPUTE_PLAN.md:19817-19842), CONFIRMED against proposer13's own §39.129(2) derivation, no revision needed",
+ "provenance": {
+  "package_name": "sei_pilot_package",
+  "package_version": "0.1.0",
+  "package_fingerprint": "e24a59922f6532c2",
+  "schema_version": "1.1",
+  "schema_base_version": "1.0",
+  "generated_at_utc": "2026-08-25T04:21:41Z",
+  "generated_at_epoch": 1787631701,
+  "python_version": "3.14.6",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "random_seed": null,
+  "invocation": "tools/build_u56_ra_irc_eulerpc_probe.py --job-dir /home/yanselmo/0_claude_projects/sei_formation/cpu_machine_pilot_results/sei_pilot_work/jobs/U56_RA_scan --out-dir /home/yanselmo/0_claude_projects/sei_formation/candidate_b2_eulerpc_2026-08-25 --total-cores 64"
+ }
+}

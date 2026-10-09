@@ -1,0 +1,149 @@
+{
+ "_doc": "환경 탐지용 경로·도구 목록 — 🔴 **단일 출처**. py와 sh가 둘 다 여기를 읽는다.",
+ "_why": "같은 사실('nvidia-smi가 PATH에 없을 수 있다')이 payload/P4.sh 와 sei_pilot/sysprobe.py 두 곳에 적혀 있다가 한쪽만 고쳐져 GPU를 못 찾았다(lead 관측, 같은 유형 5번째). 값을 복제하지 않는 것이 유일한 근본 대책이다.",
+ "schema_version": "1.0",
+ "extra_search_paths": [
+  "/usr/lib/wsl/lib",
+  "/usr/local/nvidia/bin",
+  "/opt/nvidia/bin",
+  "/usr/local/cuda/bin"
+ ],
+ "_extra_search_paths_note": "WSL의 nvidia-smi는 /usr/lib/wsl/lib 에 있고 PATH에 없다(lead 실측). 컨테이너·모듈 환경에서도 유사 사례가 있어 함께 넣었다.",
+ "qc_env_vars": [
+  "g16root",
+  "GAUSS_EXEDIR",
+  "GAUSS_SCRDIR",
+  "g09root"
+ ],
+ "_qc_env_vars_note": "Gaussian16은 모듈/스크립트로 환경을 잡는 경우가 많아 실행 파일이 PATH에 없어도 이 변수들로 위치를 알 수 있다. 🔴 이 목록을 셸에 다시 적지 마라(5번째 중복의 교훈).",
+ "qc_binaries": [
+  "g16",
+  "g09"
+ ],
+ "vendored_tools": {
+  "xtb": {
+   "rel_path": "vendor/xtb/bin/xtb",
+   "env": {
+    "XTBPATH": "vendor/xtb/share/xtb"
+   },
+   "provenance": "vendor/xtb/PROVENANCE.json",
+   "_note": "동봉본을 **가장 먼저** 시도한다. 실행 실패(아키텍처 등)는 사유를 기록하고 컨테이너→모듈→PATH 로 넘어간다."
+  }
+ },
+ "_vendored_tools_note": "🔴 사용자 클러스터에 xtb 가 없어 P3(조합 폭발 계수)가 SKIP 됐다. 정적 링크 바이너리를 동봉해 되살린다. 출처·라이선스·체크섬은 vendor/xtb/PROVENANCE.json.",
+ "gpu_tools": [
+  "nvidia-smi"
+ ],
+ "_gpu_tools_note": "이 도구를 찾을 때 위 경로를 함께 뒤진다.",
+ "gaussian_modules": {
+  "_doc": "🔴 Gaussian 모듈 이름 — **단일 출처**. 코드·payload 에 박지 마라.",
+  "_why": "로그인 PATH 의 바이너리로 찾으면 잡 스크립트에 module load 가 안 들어가 계산 노드에서 P1/P1b/P5 가 전부 rc=3 으로 죽었다(실클러스터 확인).",
+  "default": "gaussian/g16.c01.linda",
+  "_default_source": "MEASURED on the cluster: `module avail` lists gaussian/g16.c01.linda. 🔴 The previous value 'gaussian/g16.c01.lin' did not exist — it was the rstrip('(default)') truncation baked into config, and every Gaussian job died with 'Unable to locate a modulefile'. Override with --gaussian-module.",
+  "fallbacks": [
+   "gaussian/g16.b01.linda",
+   "gaussian/g16.a03.linda",
+   "gaussian/g16.a03"
+  ],
+  "_fallback_note": "Tried in order **only if the previous candidate does not yield a runnable binary**. 🔴 `module load` exit status is NOT the success signal on this site: loading a non-existent modulefile printed ERROR:105 yet we recorded state='loaded'. Success = the binary appears and is executable. Which candidate won is recorded in the reply."
+ },
+ "engine_requirements": {
+  "_doc": "🔴 THREE-ROW AVAILABILITY CHECK -- one row per external code. Single source; do not restate any of this in a shell script or a Python constant.",
+  "_why": "We wrote the data-library row for CP2K ($CP2K_DATA_DIR, U-46) as a COMMENT and never implemented it, and never carried it to VASP at all. ADR-073/074 then found we had never checked whether VASP can compute anything: `vasp_std 6.4.3 present at <path>` sat inside a block headed 'settled [MEASURED] -- do not re-run these'. 🔴 PRESENT != CAN COMPUTE. Row 1 alone must never be read as readiness.",
+  "_rows": [
+   "binary",
+   "data_library",
+   "launch_smoke"
+  ],
+  "g16": {
+   "binary_names": [
+    "g16",
+    "g09"
+   ],
+   "data_library": {
+    "kind": "env_dir",
+    "env_vars": [
+     "GAUSS_EXEDIR",
+     "g16root"
+    ],
+    "also_required_files": [
+     "inputs/basis/def2-SVPD.gbs",
+     "inputs/basis/def2-TZVPPD.gbs"
+    ],
+    "note": "the `gen` basis decks are OURS and ship in the package; $GAUSS_EXEDIR is the site's. Both are 'the data the code needs' and both can be missing separately."
+   },
+   "launch_smoke": "a single-point on a 3-atom system, ON A COMPUTE NODE (ADR-041). `command -v g16` proves a name is on PATH; a wrapper script, a missing licence or a broken Linda install all pass that and fail this."
+  },
+  "vasp_std": {
+   "binary_names": [
+    "vasp_std"
+   ],
+   "data_library": {
+    "kind": "potcar_dir",
+    "path": "/home01/q656a01/PBE_64",
+    "path_source": "[MEASURED] user reply, R36.1/C3. Per-element POTCARs, variant Li_sv, ENCUT 520 eV -- matches SevenNet-0's MPtrj pretraining reference.",
+    "required_elements": [
+     "Li_sv",
+     "C",
+     "H",
+     "O",
+     "P",
+     "F"
+    ],
+    "note": "🔴 R36.1's own caveat: POTCARs existing != VASP running, and neither is VASP COST, which has NEVER been measured on this cluster (U-69)."
+   },
+   "launch_smoke": "🔴 NOT RUN. V-P2 was CANCELLED by the user (R36.6) on direct experience that VASP runs here. That closes AVAILABILITY only. Our own pipeline has still never invoked VASP (U-74), and V-2a'`s first 5-frame sub-gate carries that. If those frames fail, read PLUMBING before physics."
+  },
+  "xtb": {
+   "binary_names": [
+    "xtb"
+   ],
+   "data_library": {
+    "kind": "param_dir",
+    "env_vars": [
+     "XTBPATH"
+    ],
+    "required_files": [
+     "param_gfn2-xtb.txt",
+     ".param_gfnff.xtb"
+    ],
+    "note": "the vendored copy ships its own share/xtb. 🔴 xtb caches a GFN-FF topology in the WORKING DIRECTORY and reuses it on the next run -- isolate a directory per run or structure 2 silently inherits structure 1's topology."
+   },
+   "launch_smoke": "one GFN2 single point. 🔴 Judge on 'energy parsed and finite', NOT on the 'normal termination' banner: xtb 6.7.1 omits the banner for periodic GFN-FF single points that produced perfectly good energies."
+  },
+  "cp2k": {
+   "binary_names": [
+    "cp2k",
+    "cp2k.psmp",
+    "cp2k.popt",
+    "cp2k.sopt"
+   ],
+   "data_library": {
+    "kind": "env_dir",
+    "env_vars": [
+     "CP2K_DATA_DIR"
+    ],
+    "required_files": [
+     "BASIS_MOLOPT",
+     "GTH_POTENTIALS"
+    ],
+    "note": "U-46. This is the row that was written as a comment and never implemented."
+   },
+   "launch_smoke": "one GFN1-xTB or DFT single point on a compute node."
+  },
+  "lammps": {
+   "binary_names": [
+    "lammps",
+    "lmp"
+   ],
+   "data_library": {
+    "kind": "potentials_dir",
+    "env_vars": [
+     "LAMMPS_POTENTIALS"
+    ],
+    "note": "🔴 LAMMPS being allowed does NOT make ReaxFF allowed -- separate user decision, recorded in sysprobe.EXCLUDED_ENGINES."
+   },
+   "launch_smoke": "a 0-step run on a 2-atom box."
+  }
+ }
+}

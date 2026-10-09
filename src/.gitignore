@@ -1,0 +1,5 @@
+sei_pilot_work/
+__pycache__/
+*.pyc
+dist/
+.session_state/

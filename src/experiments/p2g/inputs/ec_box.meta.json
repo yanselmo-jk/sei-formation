@@ -1,0 +1,10 @@
+{
+ "n_molecules": 27,
+ "n_atoms": 270,
+ "box_ang": 14.404545,
+ "n_side": 3,
+ "density_g_cm3": 1.321,
+ "density_source": "실험 문헌값 (EC, 313 K). 우리가 지어낸 값이 아니다.",
+ "format": "Turbomole coord, $periodic 3, 좌표·격자 단위 bohr",
+ "why_not_xyz": "xyz 에는 격자가 없다. xtb 주기계 GFN-FF 가 못 읽는다."
+}

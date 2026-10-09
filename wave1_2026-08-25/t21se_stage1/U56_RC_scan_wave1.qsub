@@ -1,0 +1,58 @@
+#!/bin/sh
+#PBS -V
+#PBS -q normal
+#PBS -N sei_U56_RC_scan_wave1
+#PBS -A gaussian
+#PBS -l select=1:ncpus=64:mpiprocs=64
+#PBS -l walltime=22:18:00
+# sei_pilot_package — PBS/Torque 백엔드
+#
+# 🔴 이 형태는 **사용자가 이 클러스터에서 실제로 돌려온 스크립트**를 정본으로 삼아
+#    맞춘 것이다. 이전 판은 필터 훅(`job_submit_filter`)에 4/4 거부됐다.
+#    바꿀 때는 `tests/test_pbs_script_shape.py` 의 정본 비교를 함께 보라.
+#    [UNVERIFIED — 사용자 클러스터에서만 확인 가능]
+set -u
+
+# [critic9 §5] 용매 정책의 env 주입 채널은 **테스트용**이다. `#PBS -V` 가 로그인 환경을
+# 잡으로 들여오므로, 사이트 프로파일에 이 이름이 우연히/악의로 섞여 config 결정을
+# 조용히 덮는 경로를 여기서 끊는다 — 잡 안에서 정책은 config 한 곳에서만 온다.
+unset SEI_SOLVENT_POLICY_JSON 2>/dev/null || true
+unset SEI_C8_ENDPOINTS_JSON 2>/dev/null || true
+unset SEI_QC_MODREDUNDANT_FILE 2>/dev/null || true
+# 🔴 [critic9 BLOCKER] SEI_QC_PURPOSE=smoke 가 제출 환경에서 상속되면 본계산
+# payload 전부가 smoke 로 위장해 deck_verified 게이트를 통과한다 — 이 게이트는
+# 미검증 덱에서 8,000+ core-h 를 지키는 유일한 것이다. 잡 시작 시 반드시 끊는다.
+unset SEI_QC_PURPOSE 2>/dev/null || true
+
+cd "${PBS_O_WORKDIR:-.}" || exit 1
+# 사이트 모듈 (로그인 노드 탐지 결과를 계산 노드에서 재현한다)
+module load gaussian/g16.c01.linda 2>/dev/null || echo '[sei] module load gaussian/g16.c01.linda 실패 — 계속 진행'
+export SEI_ITEM="U56_RC_scan_wave1"
+export SEI_PARTITION="normal"
+export SEI_PKG_ROOT="/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu"
+export SEI_QC_LEVEL="2"
+export SEI_QC_LOGIN_PATH="/apps/commercial/G16/g16.linda.c01/g16"
+export SEI_QC_MODULE="gaussian/g16.c01.linda"
+export SEI_U56_METHOD="relaxed_scan"
+export SEI_U56_REACTANT_ENDPOINT_KEY="endpoint_prep_rc_reactant"
+export SEI_U56_REACTION="R-C"
+export SEI_U56_STOP_AFTER="u56_scan"
+export SEI_WALL_H="22.3000"
+export SEI_WORKDIR="/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work"
+export SEI_KEY="U56_RC_scan_wave1"
+export SEI_LOGICAL_KEY="U56_RC_scan_wave1"
+export SEI_JOB_DIR="/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work/jobs/U56_RC_scan_wave1"
+export SEI_NODES="1"
+export SEI_CORES_PER_NODE="64"
+export SEI_TOTAL_CORES="64"
+export SEI_SCHEDULER="pbs"
+export SEI_JOBID="${PBS_JOBID:-none}"
+
+. "${SEI_PKG_ROOT}/payload/common.sh"
+SEI_EXPECTED_PKG_FINGERPRINT="b94510460851012e"
+SEI_ACTUAL_PKG_FINGERPRINT="$(sei_pkg_fingerprint)"
+if [ "$SEI_ACTUAL_PKG_FINGERPRINT" != "$SEI_EXPECTED_PKG_FINGERPRINT" ]; then
+  echo "[FATAL] deployed package fingerprint ($SEI_ACTUAL_PKG_FINGERPRINT) != expected ($SEI_EXPECTED_PKG_FINGERPRINT) at $SEI_PKG_ROOT. Two known false-alarm causes, check these BEFORE assuming a real mismatch: (1) SEI_WORKDIR renamed away from the default sei_pilot_work under a non-default --workdir, (2) a stray .py/.sh/.tmpl/.inp/.xyz/.json file was added directly under the package root outside sei_pilot_work/. If neither applies, SEI_U56_STOP_AFTER would be silently ignored by old code and stages 2-5 (unauthorized, unpriced) would run. Rebuild+redeploy the package, then resubmit. Refusing to run." >&2
+  exit 9
+fi
+sei_job_main bash "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work/jobs/U56_RC_scan_wave1/U56_RC_scan_wave1.cmd.sh"

@@ -1,0 +1,62 @@
+{
+  "_doc": "🔴 F1 FALSIFIER — THE BINDING EMIT-LIST. Author: proposer6, 2026-08-19. Spec: docs/02_METHOD_SPEC.md §39.32(h), merge condition granted by the lead.",
+  "_why_this_file_exists_here": [
+    "F1 is being MERGED into engineer6's §R38.5 endpoint pilot, because three lines of reasoning",
+    "converged on 'we need one real complete run'. 🔴 A MERGE IS THE STANDARD WAY A FALSIFIER",
+    "VANISHES WHILE EVERYONE BELIEVES IT RAN. If this list lived only in a method document, the",
+    "merged pilot would report cost and convergence, everyone would tick F1 off, and the falsifier",
+    "would never have been evaluated.",
+    "It sits BESIDE qc_levels.json on purpose (ADR-080's own mechanism): the requirement and the",
+    "route templates it constrains cannot drift apart silently if they are in the same directory."
+  ],
+  "_binding_rule": "🔴 IF THE MERGED PILOT REPORTS ONLY COST AND CONVERGENCE, F1 HAS NOT BEEN RUN — whatever the merge document says. A missing observable here is not a degraded result; it is an ABSENT result, and it must be reported as absent rather than inferred from what did arrive.",
+  "required_observables": [
+    {
+      "id": "angle_li_o_c",
+      "emit": "∠Li–O=C at the CONVERGED endpoint geometry, in degrees, for BOTH endpoints",
+      "falsifies_if": "stays at 180.00° (the hand-drawn value, STATE §0-g)",
+      "external_reference": "experimental ≈138(2)° — 🔴 EXTERNAL to this project, therefore not something we could have constructed. That is why the falsifier is attached to it (§39.36(a))."
+    },
+    {
+      "id": "ring_bond_lengths",
+      "emit": "the five ring bond lengths C1-O2, C1-O5, O2-C3, C4-O5, C3-C4 at the converged geometry, in Å",
+      "falsifies_if": "they remain equal at 1.399/1.400 Å",
+      "external_reference": "crystallographic cyclic carbonate: C(sp2)-O 1.33-1.36, O-CH2 1.44-1.46, C-C ≈1.52 (ADR-066). No molecule has five equal ring bonds."
+    },
+    {
+      "id": "n_imag_entering_tight_stage",
+      "emit": "the number of negative Hessian eigenvalues at the geometry ENTERING the tight stage (= stage-1 exit under the ADR-099 two-stage protocol; = the raw guess if a single-stage run is ever done)",
+      "cost": "🟢 FREE, AND ALREADY PAID. Stage 2's CalcFC IS a Hessian at stage-1's exit geometry, computed at step 1 before anything moves. We already have this number in every run; the only thing missing was that nobody emitted it. See §39.38(c).",
+      "answers": "(i) whether the symmetric (C2v, ∠=180.00°) point was a saddle AT ALL -- if n_imag == 0 here, proposer6's diagnosis is wrong and the guesses were adequate (§39.32(h) F1); (ii) 🔴 whether STAGE 1 STAYED ON THE SYMMETRY ELEMENT -- the cheapest possible detection of the two-stage failure mode, reported BEFORE a single tight cycle is spent."
+    },
+    {
+      "id": "n_imag_at_convergence",
+      "emit": "the number of negative Hessian eigenvalues at the converged geometry, counting EVERY negative eigenvalue with no magnitude waiver",
+      "is": "the C-8 certificate itself (C-8.2/C-8.3, §39.32(f))"
+    },
+    {
+      "id": "point_group",
+      "emit": "the point group AT STEP 1 and AT CONVERGENCE, as data",
+      "why": "STATE §0-g's standing order: symmetry breaking must be a MEASUREMENT, not an assumption. 🔴 Also the only direct check that `nosymm` did its job (B-2): if the group is re-detected and re-imposed, the C-9 perturbation was undone and every log still says 'converged'."
+    },
+    {
+      "id": "s2_both_stages",
+      "emit": "⟨S²⟩ before AND after annihilation, at BOTH stages (rough=선택된 시작점의 로그, tight), as NUMBERS — no verdict (C-3). Doublet clean value 0.75.",
+      "why": "🔴 §39.42(a) REQUIRED EMISSION (proposer7, 2026-08-20): a reduced EC radical is exactly the class where a UKS reference contaminates, and an 'endpoint' with a badly contaminated reference is not the species we think we certified — nothing else in the chain would notice. GFN2 has no ⟨S²⟩; this is a DFT-stage observable only.",
+      "wired_as": "f1_observables.json fields s2_stage1_rough / s2_stage2_tight (payload/endpoint_prep.sh, criteria/g16.py::parse_s2). coder10, 2026-08-20."
+    },
+    {
+      "id": "stage1_exit_structural_set",
+      "emit": "point group AND ∠Li–O=C AND the max out-of-plane deviation, AT STAGE-1 EXIT",
+      "cost": "🟢 FREE — purely geometric, computed from the stage-1 output .xyz. No job.",
+      "why": "🔴 ADR-099 two-stage: if stage 1 runs without `nosymm`, G16 re-imposes the point group, the C-9 perturbation is undone at step 1, and stage 2 inherits the pristine symmetric structure. Stage-1 exit is where that is cheapest to see. §39.38(a)/(c), lead's point 3.",
+      "binding": "a stage-1 exit whose point group is NOT C1 is a DEFECT REPORT about our route, not a fact about the molecule."
+    }
+  ],
+  "_also_required_by_other_constraints_not_by_F1": {
+    "irc_untruncated": "🔴 NOT an F1 item, listed so it is not dropped as 'extra': C-2 ALREADY requires both IRC directions with normal_termination, n_points >= 5 and |E_end - E_TS| > 0.05 eV. An untruncated TS+IRC run is therefore a precondition of U-56 condition 7 (§39.32(g)) and is NOT new scope — the same shape as C-9's 'optimise in C1' having been an unimplemented adopted decision.",
+    "abort_status": "a wall-clock abort is `budget_exhausted`, NEVER `non_converged`, and must not enter any convergence or success rate (§39.34(b), lead-ratified)."
+  },
+  "_provenance": "[SPEC] — this file states a requirement. It contains NO measured values and no estimates. Cf. §39.36(c): a number's provenance token must exist before it can be honest; [FIXTURE] is proposed there as the missing fourth token.",
+  "_two_stage_note": "🔴 ADR-099 (user): rough opt -> tight opt+freq. The C-9 perturbation is applied ONCE, BEFORE stage 1, and is NOT re-applied between stages. `nosymm` is required on BOTH stages (`endpoint_opt_rough` and `endpoint_opt_freq` both belong in `_nosymm_required_job_types`). Rough = SAME functional/basis/solvent/GRID as tight; only the convergence thresholds differ. §39.38."
+}

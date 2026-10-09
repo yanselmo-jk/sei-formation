@@ -1,0 +1,39 @@
+#!/bin/sh
+#PBS -V
+#PBS -q normal
+#PBS -N sei_u56_candidate_a_reverse
+#PBS -A gaussian
+#PBS -l select=1:ncpus=64:mpiprocs=1:ompthreads=64
+#PBS -l walltime=08:00:00
+# Candidate A (proposer12 §39.124, 02_METHOD_SPEC.md; engineer13 pricing §R39.81,
+# 03_COMPUTE_PLAN.md:19357-19365, critic16's correction 2 -- the 24-new-point/64-core
+# figures below, NOT the withdrawn 19199-19228 9-point/maxpoints=15 block) -- reverse-arm
+# mirror of stage 4's forward
+# recorrect=never restart, unblocked by proposer13's ruling (§39.125(3)) that stage 4's
+# clean pass through the shared corrector failure signature resolves R-9's sequencing rule
+# to "proceed." maxpoints=30 (24 new points beyond the 6 already stored) is confirmed
+# EXPLICIT in this deck's own route (not inherited from the checkpoint -- the ambiguity
+# stage4's pre-fix deck had, §39.125(2)).
+#
+# Walltime: engineer13's §R39.81 (03_COMPUTE_PLAN.md:19357-19365) full maxpoints=30/
+# 24-new-point outer bound is 46.1-87.1
+# core-h (24 pts x 1.92-3.63 core-h/pt) => 0.72-1.36 h wall at 64 cores. 8h is a ~5.9x
+# margin over the pessimistic 1.36h ceiling -- generous given this route is UNSMOKED on
+# the reverse direction specifically (ADR-117-class risk, §R39.81's own flag: same
+# silent-recorrect-drop mechanism critic15 already caught once for forward), while
+# staying trivially inside ADR-114's 48h cap.
+#
+# Cores come from the deck's own %nprocshared=64 line (critic16's finding 2, §R39.81 --
+# the builder's default is 1 core and would break the 48h cap at this sizing; this deck
+# was built with --total-cores 64 explicitly, verified in irc_recorrect_probe.gjf).
+# GAUSS_NPROCSHARED is NOT a Gaussian 16 variable and is deliberately absent here, same
+# convention as stage3/stage4's scripts.
+set -u
+cd "${PBS_O_WORKDIR:-.}" || exit 1
+trap 'echo "[sei] SIGTERM $(date -u +%FT%TZ): candidate_a killed before completion" >> candidate_a_kill.marker; exit 1' TERM
+module load gaussian/g16.c01.linda 2>/dev/null || echo '[sei] module load gaussian/g16.c01.linda failed - continuing'
+echo "[sei] candidate_a start $(date -u +%FT%TZ)"
+g16 < irc_recorrect_probe.gjf > irc_recorrect_probe.log 2>&1
+rc=$?
+echo "[sei] candidate_a end $(date -u +%FT%TZ) rc=$rc"
+exit $rc

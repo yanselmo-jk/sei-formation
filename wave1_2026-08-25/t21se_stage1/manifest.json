@@ -1,0 +1,42 @@
+{
+ "purpose": "S3 wave-1 attempt 1: T21-se STAGE 1 ONLY (R-C, single-ended relaxed scan, 21 atoms) -- staged/circuit-breaker protocol (02_METHOD_SPEC.md §39.136 addendum; 03_COMPUTE_PLAN.md §R39.88 §3/§R39.89/§R39.91). Stages 2-5 are genuinely unpriced and NOT built by this tool -- a human decision gate on stage 1's real result comes first. NOT submitted by this script.",
+ "reaction": "R-C",
+ "method": "relaxed_scan",
+ "reactant_endpoint_key": "endpoint_prep_rc_reactant",
+ "job_key": "U56_RC_scan_wave1",
+ "job_dir_remote": "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work/jobs/U56_RC_scan_wave1",
+ "stage_limit": {
+  "mechanism": "SEI_U56_STOP_AFTER=u56_scan",
+  "note": "payload/U56.sh stops cleanly right after its own u56_scan sei_stage call (status stopped_after_stage, cause_class staged per §39.138/§39.139 -- never auto-retried) instead of continuing to refine/ts_opt/IRC/B+."
+ },
+ "wall_cap_basis": "03_COMPUTE_PLAN.md §R39.91: R-C's confirmed ~40-41 scan points (1.86x R-A's 22-point anchor) -> 22.3h wall / 1,428 core-h point-count-ratio-adjusted circuit breaker, NOT a cost prediction. If stage 1 hits this cap without finishing, the pre-registered decision (attempts_manifest.json slot 1) is STOP AND RE-SCOPE, not resubmit with a bigger cap.",
+ "reused_from": "same production harness that built U56_RA_scan/U56_RB_scan (payload/U56.sh via sei_pilot.scheduler.PbsAdapter.write_script) -- R-C is an existing valid SEI_U56_REACTION value in U56.sh already, no new deck-building logic",
+ "assumptions_not_independently_verified": {
+  "pkg_root": "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu",
+  "workdir": "/scratch/q656a01/calculation_time_test_pilot/sei_pilot_cpu/sei_pilot_work",
+  "qc_module": "gaussian/g16.c01.linda",
+  "qc_login_path": "/apps/commercial/G16/g16.linda.c01/g16",
+  "_source": "same confirmed-real deployment/QC-detection data point build_wave1_rb_submission.py's own manifest uses -- verify before trusting if the deployment path or QC module has changed"
+ },
+ "deployed_package_fingerprint_check": {
+  "expected": "b94510460851012e",
+  "note": "qsub refuses to run (exit 9) if $SEI_PKG_ROOT's own recomputed package_fingerprint (via common.sh's sei_pkg_fingerprint(), same workdir-aware exclusion logic it already uses) doesn't match this -- catches a stale deployment before it silently ignores SEI_U56_STOP_AFTER and runs stages 2-5 unauthorized."
+ },
+ "wall_h": 22.3,
+ "cores": 64,
+ "qsub_file": "U56_RC_scan_wave1.qsub",
+ "cmd_file": "U56_RC_scan_wave1.cmd.sh",
+ "provenance": {
+  "package_name": "sei_pilot_package",
+  "package_version": "0.1.0",
+  "package_fingerprint": "b94510460851012e",
+  "schema_version": "1.1",
+  "schema_base_version": "1.0",
+  "generated_at_utc": "2026-08-25T10:35:36Z",
+  "generated_at_epoch": 1787654136,
+  "python_version": "3.14.6",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "random_seed": null,
+  "invocation": "src/pilot_package/tools/build_wave1_t21se_stage1_submission.py --out-dir wave1_2026-08-25/t21se_stage1"
+ }
+}

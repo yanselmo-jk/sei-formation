@@ -1,0 +1,48 @@
+#!/bin/sh
+#PBS -V
+#PBS -q normal
+#PBS -N sei_u56_candidate_b_reverse_stepsize
+#PBS -A gaussian
+#PBS -l select=1:ncpus=64:mpiprocs=1:ompthreads=64
+#PBS -l walltime=14:00:00
+# Candidate B (proposer13 §39.127/§39.128, 02_METHOD_SPEC.md; engineer14 pricing §R39.82-84,
+# 03_COMPUTE_PLAN.md:19405-19772) -- from-scratch reverse-arm IRC redo from the certified
+# TS geometry (calcfc), StepSize quartered-then-widened to fifth (f=0.25 originally ruled by
+# §39.127, superseded by §39.128: stepsize must be integer, and between the two adjacent
+# integers stepsize=2 (f=0.20) keeps 3x the safety margin below the corrector's own measured
+# 0.35 natural-contraction scale that stepsize=3 (f=0.30) would have kept -- maxpoints raised
+# to 70 instead, since that number was proposer13's own margin-padded estimate, not a
+# physical or budget constraint, per §39.128's own reasoning), recorrect=never carried
+# forward (NOT dropped -- both arms already passed the original oscillating-failure region
+# under it). Unblocked by proposer13's §39.126 ruling that Candidate A's reverse restart,
+# despite clearing the original failure region, hit a DIFFERENT problem (forced corrector
+# step-contraction, non-converging Bulirsch-Stoer fit, failed the project's own distinctness
+# test) two points later -- this is the next scientifically-warranted step, not a repeat of
+# Candidate A.
+#
+# Walltime: engineer14's CONFIRMED re-derivation from first principles (§R39.84,
+# 03_COMPUTE_PLAN.md:19716-19769 -- supersedes §R39.82/83 for this parameter set, NOT trusted
+# from proposer13's own earlier extrapolation per lead's explicit instruction). Targeted/
+# expected: 63 points x 1.92-3.63 core-h/pt = 121.0-228.7 core-h => 1.9-3.6h wall. Requested
+# ceiling (full maxpoints=70 budget consumed): 70 points x 1.92-3.63 core-h/pt = 134.4-254.1
+# core-h => 2.1-4.0h wall at 64 cores. 14h is a ~3.5x margin over the pessimistic 4.0h
+# ceiling -- generous given this exact route combination (calcfc+reverse+recorrect=never+
+# stepsize+maxpoints=70) is UNSMOKED on this cluster's G16 build (MODERATE ADR-117-class risk
+# per §R39.82 §5: no known silent-override mechanism, since there is no checkpoint to inherit
+# a stale option from -- unlike Candidate A's restart route), while staying well inside
+# ADR-114's 48h cap (>12x margin, §R39.84) and engineer14's own informational maxpoints<=200
+# soft ceiling (70 << 200, §R39.82 §4).
+#
+# Cores come from the deck's own %nprocshared=64 line (engineer14 §R39.82 §6's explicit
+# requirement -- no builder default; this deck was built with --total-cores 64, verified in
+# irc_stepsize_probe.gjf). GAUSS_NPROCSHARED is NOT a Gaussian 16 variable and is
+# deliberately absent here, same convention as every other script in this project.
+set -u
+cd "${PBS_O_WORKDIR:-.}" || exit 1
+trap 'echo "[sei] SIGTERM $(date -u +%FT%TZ): candidate_b killed before completion" >> candidate_b_kill.marker; exit 1' TERM
+module load gaussian/g16.c01.linda 2>/dev/null || echo '[sei] module load gaussian/g16.c01.linda failed - continuing'
+echo "[sei] candidate_b start $(date -u +%FT%TZ)"
+g16 < irc_stepsize_probe.gjf > irc_stepsize_probe.log 2>&1
+rc=$?
+echo "[sei] candidate_b end $(date -u +%FT%TZ) rc=$rc"
+exit $rc

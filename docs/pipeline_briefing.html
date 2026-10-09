@@ -1,0 +1,781 @@
+<title>Finding Every Reaction</title>
+<style>
+  :root{
+    --ink:#16191F; --ink-2:#39424B; --muted:#69747D;
+    --paper:#F1F4F4; --surface:#FFFFFF; --surface-2:#E7ECEC;
+    --rule:#CFD8D8; --rule-soft:#DFE6E6;
+    --teal:#0F6E6E; --teal-soft:#DCEDEC;
+    --amber:#96590F; --amber-soft:#F4E9D6;
+    --crit:#9C2429; --crit-soft:#F5DEDE;
+    --font-display:"Helvetica Neue",Helvetica,Arial,"Liberation Sans",sans-serif;
+    --font-body:Charter,"Bitstream Charter","Iowan Old Style","Source Serif Pro",Georgia,serif;
+    --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ink:#E4EAEA; --ink-2:#BAC4C4; --muted:#8B979A;
+      --paper:#0E1214; --surface:#151A1D; --surface-2:#1D2427;
+      --rule:#2C3639; --rule-soft:#232B2E;
+      --teal:#5CC4BE; --teal-soft:#12302F;
+      --amber:#D69B4E; --amber-soft:#33260F;
+      --crit:#E07178; --crit-soft:#331A1C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#E4EAEA; --ink-2:#BAC4C4; --muted:#8B979A;
+    --paper:#0E1214; --surface:#151A1D; --surface-2:#1D2427;
+    --rule:#2C3639; --rule-soft:#232B2E;
+    --teal:#5CC4BE; --teal-soft:#12302F;
+    --amber:#D69B4E; --amber-soft:#33260F;
+    --crit:#E07178; --crit-soft:#331A1C;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--font-body); font-size:17px; line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px; margin:0 auto; padding:0 28px 120px}
+  .col{max-width:68ch}
+
+  h1,h2,h3,h4,.lbl,.pill,.meta,.num{font-family:var(--font-display)}
+  h1{
+    font-size:clamp(38px,6.4vw,66px); line-height:1.02; letter-spacing:-.035em;
+    font-weight:700; margin:0; text-wrap:balance;
+  }
+  h2{
+    font-size:clamp(24px,3vw,31px); line-height:1.12; letter-spacing:-.024em;
+    font-weight:700; margin:0; text-wrap:balance;
+  }
+  h3{
+    font-size:19px; line-height:1.25; letter-spacing:-.012em;
+    font-weight:700; margin:0; text-wrap:balance;
+  }
+  h4{
+    font-size:12px; letter-spacing:.13em; text-transform:uppercase;
+    font-weight:700; margin:0; color:var(--muted);
+  }
+  p{margin:0}
+  a{color:var(--teal)}
+
+  /* ---- masthead ---- */
+  header.mast{
+    border-bottom:2px solid var(--ink);
+    padding:72px 0 26px; margin-bottom:0;
+    display:flex; flex-direction:column; gap:22px;
+  }
+  .eyebrow{
+    font-family:var(--font-display); font-size:11.5px; font-weight:700;
+    letter-spacing:.2em; text-transform:uppercase; color:var(--teal);
+  }
+  .thesis{
+    font-size:20px; line-height:1.45; color:var(--ink-2); max-width:60ch;
+  }
+  .thesis em{font-style:normal; color:var(--ink); box-shadow:inset 0 -.42em 0 var(--teal-soft)}
+  .metastrip{
+    display:flex; flex-wrap:wrap; gap:8px 26px;
+    font-family:var(--font-mono); font-size:12px; color:var(--muted);
+    border-top:1px solid var(--rule-soft); padding-top:16px;
+  }
+  .metastrip b{color:var(--ink-2); font-weight:400}
+
+  /* ---- section rhythm ---- */
+  section{
+    padding:56px 0; border-bottom:1px solid var(--rule-soft);
+    display:flex; flex-direction:column; gap:26px;
+  }
+  .shead{display:flex; gap:18px; align-items:baseline}
+  .snum{
+    font-family:var(--font-display); font-weight:700; font-size:13px;
+    letter-spacing:.04em; color:var(--teal); padding-top:6px;
+    min-width:34px; font-variant-numeric:tabular-nums;
+  }
+  .stack{display:flex; flex-direction:column; gap:16px}
+  .stack-s{display:flex; flex-direction:column; gap:9px}
+
+  /* ---- pills ---- */
+  .pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    padding:3px 9px; border-radius:2px; white-space:nowrap;
+  }
+  .p-ok{background:var(--teal-soft); color:var(--teal)}
+  .p-open{background:var(--amber-soft); color:var(--amber)}
+  .p-crit{background:var(--crit-soft); color:var(--crit)}
+  .pillrow{display:flex; flex-wrap:wrap; gap:8px}
+
+  /* ---- callouts ---- */
+  .note{
+    border-left:3px solid var(--teal); background:var(--surface);
+    padding:16px 20px; display:flex; flex-direction:column; gap:8px;
+  }
+  .note.warn{border-left-color:var(--amber)}
+  .note.crit{border-left-color:var(--crit)}
+  .note q{
+    quotes:none; display:block; font-size:18px; line-height:1.5; color:var(--ink);
+  }
+  .note .src{font-family:var(--font-display); font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--muted)}
+
+  /* ---- mono blocks ---- */
+  pre{
+    margin:0; background:var(--surface); border:1px solid var(--rule-soft);
+    padding:16px 18px; overflow-x:auto;
+    font-family:var(--font-mono); font-size:12.5px; line-height:1.65; color:var(--ink-2);
+  }
+  code{font-family:var(--font-mono); font-size:.88em; color:var(--ink)}
+  .k-ok{color:var(--teal); font-weight:700}
+  .k-crit{color:var(--crit); font-weight:700}
+  .k-open{color:var(--amber); font-weight:700}
+
+  /* ---- tables ---- */
+  .tw{overflow-x:auto; border:1px solid var(--rule-soft); background:var(--surface)}
+  table{border-collapse:collapse; width:100%; font-size:14.5px}
+  th,td{text-align:left; padding:11px 14px; border-bottom:1px solid var(--rule-soft);
+    vertical-align:top}
+  th{
+    font-family:var(--font-display); font-size:11px; letter-spacing:.11em;
+    text-transform:uppercase; color:var(--muted); font-weight:700;
+    background:var(--surface-2); white-space:nowrap;
+  }
+  tbody tr:last-child td{border-bottom:none}
+  td.mono,th.mono{font-family:var(--font-mono); font-size:12.5px; font-variant-numeric:tabular-nums}
+  .tsym{font-family:var(--font-mono); font-weight:700; color:var(--teal); white-space:nowrap}
+
+  /* ---- pipeline spine diagram ---- */
+  .spine{display:flex; flex-direction:column; gap:0; margin:4px 0}
+  .stage{
+    display:grid; grid-template-columns:96px 1fr; gap:0;
+    border:1px solid var(--rule); background:var(--surface);
+  }
+  .stage + .link{
+    height:30px; margin-left:47px; border-left:2px solid var(--rule);
+    position:relative;
+  }
+  .link::after{
+    content:""; position:absolute; left:-5px; bottom:0;
+    border-left:6px solid transparent; border-right:6px solid transparent;
+    border-top:7px solid var(--rule);
+  }
+  .stage-tag{
+    background:var(--surface-2); border-right:1px solid var(--rule);
+    padding:14px 12px; display:flex; flex-direction:column; gap:3px; align-items:flex-start;
+  }
+  .stage-tag .s{font-family:var(--font-display); font-weight:700; font-size:20px;
+    letter-spacing:-.02em; color:var(--teal)}
+  .stage-tag .u{font-family:var(--font-mono); font-size:10.5px; color:var(--muted)}
+  .stage-body{padding:14px 18px; display:flex; flex-direction:column; gap:5px}
+  .stage-body .t{font-family:var(--font-display); font-weight:700; font-size:15px}
+  .stage-body .d{font-size:14.5px; color:var(--ink-2); line-height:1.5}
+  .stage.hot{border-color:var(--teal); border-width:2px}
+  .stage.hot .stage-tag{background:var(--teal-soft)}
+
+  /* ---- ledger split diagram ---- */
+  .split{display:grid; grid-template-columns:1fr 44px 1fr; align-items:stretch; gap:0}
+  .box{
+    border:1px solid var(--rule); background:var(--surface); padding:16px 18px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .box.led{border-color:var(--teal); border-width:2px}
+  .box .bt{font-family:var(--font-display); font-weight:700; font-size:14px}
+  .box .bd{font-size:13.5px; color:var(--ink-2); line-height:1.5}
+  .box ul{margin:0; padding-left:17px; font-size:13px; color:var(--ink-2); line-height:1.55}
+  .snapshot{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  }
+  .snapshot .bar{width:2px; flex:1; background:var(--rule)}
+  .snapshot .cap{
+    font-family:var(--font-mono); font-size:9.5px; color:var(--muted);
+    writing-mode:vertical-rl; letter-spacing:.08em; white-space:nowrap;
+  }
+  @media (max-width:640px){
+    .split{grid-template-columns:1fr}
+    .snapshot{flex-direction:row; height:30px}
+    .snapshot .bar{width:100%; height:2px; flex:none}
+    .snapshot .cap{writing-mode:horizontal-tb}
+    .stage{grid-template-columns:72px 1fr}
+  }
+
+  /* ---- funnel ---- */
+  .funnel{display:flex; flex-direction:column; gap:3px}
+  .frow{display:grid; grid-template-columns:1fr 150px; gap:14px; align-items:center}
+  .fbar{
+    height:38px; background:var(--surface-2); border:1px solid var(--rule);
+    display:flex; align-items:center; padding-left:14px;
+    font-family:var(--font-mono); font-size:12px; color:var(--ink-2);
+  }
+  .fbar.b1{width:100%; background:var(--teal-soft); border-color:var(--teal)}
+  .fbar.b2{width:62%}
+  .fbar.b3{width:26%}
+  .fbar.b4{width:9%; background:var(--crit-soft); border-color:var(--crit); padding-left:10px}
+  .fcap{font-size:13px; color:var(--muted); line-height:1.4}
+
+  ul.plain{margin:0; padding-left:19px; display:flex; flex-direction:column; gap:7px}
+  ul.plain li{padding-left:2px}
+  .fig{display:flex; flex-direction:column; gap:10px}
+  .figcap{font-size:13px; color:var(--muted); line-height:1.5}
+  footer{padding:44px 0 0; color:var(--muted); font-size:13px;
+    display:flex; flex-direction:column; gap:8px}
+  :focus-visible{outline:2px solid var(--teal); outline-offset:3px}
+  @media (prefers-reduced-motion:no-preference){
+    .stage{transition:border-color .15s ease}
+  }
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">SEI Formation · Methodology Briefing</div>
+  <h1>Finding Every Reaction</h1>
+  <p class="thesis">This project stopped being “calculate the SEI of EC/EMC” and became
+    <em>build a reaction-discovery pipeline that transfers to electrolytes nobody has studied</em>.
+    That single change moved the centre of gravity from barriers to search — and then moved the
+    bottleneck straight back onto barriers.</p>
+  <div class="metastrip">
+    <span><b>Scope</b> S1–S4, discovery- and pathway-centric</span>
+    <span><b>Basis</b> ADR-001 … ADR-063</span>
+    <span><b>Date</b> 2026-08-18</span>
+    <span><b>Status</b> S2 grammar fixed · κ unmeasured</span>
+  </div>
+</header>
+
+<section>
+  <div class="shead"><div class="snum">§0</div>
+    <div class="stack col">
+      <h2>Notation used here</h2>
+      <p>Stage indices are the user’s own four-stage strategy; everything else is internal
+        bookkeeping. Terms are defined at first use.</p>
+    </div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Symbol</th><th>Meaning</th><th>Origin</th></tr></thead>
+      <tbody>
+        <tr><td class="tsym">S1</td><td>Activation barrier for a species <em>accepting an electron</em></td><td>user-defined strategy</td></tr>
+        <tr><td class="tsym">S2</td><td>Discovery of products the reduced radicals form with other species</td><td>user-defined strategy</td></tr>
+        <tr><td class="tsym">S3</td><td>Reaction pathway / transition state and its barrier</td><td>user-defined strategy</td></tr>
+        <tr><td class="tsym">S4</td><td>Kinetic integration → composition, thickness, dominant paths</td><td>user-defined strategy</td></tr>
+        <tr><td class="tsym">U-nn</td><td>Unresolved design decision, numbered</td><td>internal</td></tr>
+        <tr><td class="tsym">ADR-nnn</td><td>Architecture Decision Record — one settled decision</td><td>internal</td></tr>
+        <tr><td class="tsym">ΔG‡</td><td>Free-energy barrier. At room temperature <b>0.1 eV ≈ ×50 in rate</b></td><td>—</td></tr>
+        <tr><td class="tsym">DRC</td><td>Degree of Rate Control — how much an observable moves when one step’s rate does</td><td>Campbell</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note crit col">
+    <h4>Live notation collision — found 2026-08-18</h4>
+    <p><code>E1/E2/E3</code> currently means two different things, and <b>both senses appear in
+      confirmed decisions</b>.</p>
+<pre>ADR-019   <span class="k-crit">discovery engines</span>   E1 graph enumeration · E2 xTB TS search · E3 reactive MD
+ADR-015   <span class="k-crit">transferability tests</span> E1 blind rediscovery · E2 leave-one-chemistry-out
+                                 E3 pre-registered prediction</pre>
+    <p>ADR-022’s “layer I (inside E1’s grammar)” is the <b>engine</b>; ADR-051’s “E1 rediscovery
+      rate <code>k/n</code>” is the <b>test</b>. Until renamed, this document writes
+      <code>engine-E1</code> and <code>test-E1</code> explicitly.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><div class="snum">§1</div>
+    <div class="stack col">
+      <h2>The shape of the problem</h2>
+      <p>The pipeline is a sequence, and the sequence encodes a real dependency: each stage
+        consumes the previous stage’s output and cannot be run out of order.</p>
+    </div>
+  </div>
+
+  <div class="fig">
+    <div class="spine">
+      <div class="stage">
+        <div class="stage-tag"><span class="s">S1</span><span class="u">reduction</span></div>
+        <div class="stage-body">
+          <span class="t">Which species accepts an electron first</span>
+          <span class="d">Cluster + implicit solvent across the board, with AIMD demoted to a
+            diagnostic. Produces the radical seeds everything downstream starts from.</span>
+        </div>
+      </div>
+      <div class="link"></div>
+
+      <div class="stage hot">
+        <div class="stage-tag"><span class="s">S2</span><span class="u">discovery</span></div>
+        <div class="stage-body">
+          <span class="t">What those radicals go on to form — the body of the project</span>
+          <span class="d">Compute-heavy, human-light. Splits into an append-only discovery ledger
+            (for “have we found enough?”) and a working network (for “what matters?”).</span>
+        </div>
+      </div>
+      <div class="link"></div>
+
+      <div class="stage hot">
+        <div class="stage-tag"><span class="s">S3</span><span class="u">barriers</span></div>
+        <div class="stage-body">
+          <span class="t">Attaching a rate to each discovered reaction</span>
+          <span class="d">Human-heavy: ~0.31 h of human review per transition state. A few hundred
+            explicit TS at most; everything else must be covered by a surrogate.</span>
+        </div>
+      </div>
+      <div class="link"></div>
+
+      <div class="stage">
+        <div class="stage-tag"><span class="s">S4</span><span class="u">kinetics</span></div>
+        <div class="stage-body">
+          <span class="t">Composition, thickness, dominant pathway, sensitivity</span>
+          <span class="d">0-D stiff ODE with an implicit integrator — not kMC. Precipitation is a
+            reversible pair with a computed solubility product, so no arbitrary cutoff is needed.</span>
+        </div>
+      </div>
+    </div>
+    <p class="figcap">The two highlighted stages carry the project. They are also where its two
+      scarce resources sit — and they are different resources.</p>
+  </div>
+
+  <div class="note col">
+    <h4>The asymmetry that drives every allocation decision</h4>
+    <q>S3 is human-intensive and S2 is compute-intensive. Compute is projected to leave 58 % of the
+      envelope unspent; human time is what runs out.</q>
+    <span class="src">ADR-014 — moving weight from S3 to S2</span>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><div class="snum">§2</div>
+    <div class="stack col">
+      <h2>S2 — how reactions are discovered</h2>
+      <p>The requirement is not “find the reactions of this electrolyte”. It is “find them in a way
+        that still works on an electrolyte we have never seen”. That constraint decides almost every
+        design choice below.</p>
+    </div>
+  </div>
+
+  <div class="stack col">
+    <h3>2.1 The transformation grammar is composition-agnostic</h3>
+    <p>Search boundaries are not set by generation count or an energy cutoff — those require already
+      knowing the answer, so they do not transfer. The permitted moves mention no elements at all:</p>
+  </div>
+<pre>break m bonds / form n bonds     with   m + n ≤ 4
+charge change  Δq ∈ {−1, 0, +1}
+spin change    (radical ↔ closed shell)
+association / dissociation</pre>
+  <p class="col">Because no element list appears, the same grammar runs unchanged on a salt or
+    solvent the pipeline has never encountered. Transferability is guaranteed at the grammar level
+    rather than promised at the end.</p>
+
+  <div class="stack col">
+    <h3>2.2 Three engines — and the reason is statistical, not coverage</h3>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Engine</th><th>Mechanism</th><th class="mono">Energy model</th><th class="mono">Search mode</th><th>Principal blind spot</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="tsym">engine-E1</td>
+          <td>Fragment principal molecules → recombine into a species pool → enumerate every
+            stoichiometrically balanced reaction → filter → run many kMC trajectories and keep what fires</td>
+          <td class="mono">thermo DFT</td><td class="mono">deterministic</td>
+          <td><b>Computes no barriers.</b> Judges by ΔG, so thermodynamically downhill but kinetically
+            forbidden reactions pass straight through. Cannot reach molecules outside the pool —
+            LEDC yes, SEI polymers no.</td>
+        </tr>
+        <tr>
+          <td class="tsym">engine-E2</td>
+          <td>Graph-edit elementary steps → double-ended GSM at GFN2-xTB level → DFT refinement →
+            IRC to verify the connection</td>
+          <td class="mono">GFN2-xTB</td><td class="mono">graph edit + opt</td>
+          <td>Best-in-class for gases, because it finds steps that actually have barriers. Bimolecular
+            condensation (LEDC needs 3–4 generations) is lost to combinatorial explosion.</td>
+        </tr>
+        <tr>
+          <td class="tsym">engine-E3</td>
+          <td>Inject an excess electron, run biased/high-temperature MD, extract events from bond-graph
+            changes</td>
+          <td class="mono">ReaxFF / MLIP</td><td class="mono">stochastic MD</td>
+          <td>Most MLIPs have <b>no charge-transfer physics</b>; high-T bias distorts branching ratios;
+            rare bimolecular events at low concentration are effectively never sampled — which is
+            exactly where the minor gas channels live.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="col">The third axis is currently <b>not stood up</b>: ReaxFF was excluded, then PM7, then
+    MOPAC — which removed its substance. The needed independence was re-derived as
+    <b>different random numbers rather than different physics</b>, with Gaussian’s <code>ADMP</code>
+    pre-registered as the fallback and an explicit trigger rule written down in advance.</p>
+
+  <div class="stack col">
+    <h3>2.3 Why one engine can never be enough</h3>
+    <p>“Have we searched enough?” is answered with species-richness estimators borrowed from ecology —
+      the same mathematics as “how many species are in this forest?”, which is answer-independent and
+      therefore transfers.</p>
+  </div>
+<pre>Good–Turing coverage   Ĉ = 1 − f₁/N            f₁ = species seen exactly once
+Chao1 richness         Ŝ = S_obs + f₁²/(2f₂)   f₂ = species seen exactly twice
+stop when              Ĉ ≥ 0.95   AND   (Ŝ − S_obs)/S_obs &lt; 0.05      <span class="k-open">[provisional]</span></pre>
+
+  <div class="note warn col">
+    <h4>The limit, stated by its own author rather than discovered later</h4>
+    <q>Ĉ and Chao1 measure the coverage of <b>the distribution the sampler samples</b> — not the
+      coverage of chemical truth. If an engine is <b>structurally blind</b> to a class, that class
+      appears in neither f₁ nor f₂, so <b>Ĉ reads high while reality is missed</b>.</q>
+    <span class="src">proposer, ADR-015</span>
+  </div>
+
+  <p class="col">That limitation is what forces capture–recapture, and it inverts the engine
+    selection criterion.</p>
+<pre>Lincoln–Petersen    N̂ = |S_A| · |S_B| / |S_A ∩ S_B|
+
+<span class="k-crit">With one engine, completeness is not estimable in principle.</span>
+⟹ engines are chosen for <b>independent failure modes</b>, not individual performance.</pre>
+
+  <div class="note col">
+    <h4>One implementation line is load-bearing for the whole statistical argument</h4>
+    <q>engine-E2 must not apply a barrier cutoff during search. Record everything that converges and
+      filter afterwards. The moment a cutoff sits in the search stage, E2’s capture becomes dependent
+      on xTB energies and its failure mode correlates with E3’s.</q>
+    <span class="src">proposer §16.1 — coder constraint</span>
+  </div>
+
+  <p class="col">The reasoning: E2’s capture is driven by <em>enumeration</em>
+    (<code>P(edit enumerated) × P(TS search converges)</code>) while E3’s is driven by
+    <em>energy</em> (<code>f(barrier, T, sampling time)</code>). If xTB puts a barrier absurdly high,
+    E3 never sees the event but E2 still finds the TS — only with the wrong energy attached. The
+    reaction is still captured. The genuinely correlated failure is not a wrong barrier but a
+    <b>wrong structure or topology</b> — unphysical dissociation of Li-coordinated charged species,
+    wrong P–F coordination number. That is the thing to test for.</p>
+
+  <div class="stack col">
+    <h3>2.4 The ledger and the working network are different objects</h3>
+  </div>
+
+  <div class="fig">
+    <div class="split">
+      <div class="box led">
+        <span class="bt">Discovery ledger — append-only</span>
+        <span class="bd">Never pruned. Records, per entry: species or reaction, discovering engine,
+          round, discovery temperature, timestamp, initial-condition hash.</span>
+        <ul>
+          <li>Ĉ, Chao1 and capture–recapture are computed <b>here and nowhere else</b></li>
+          <li>Metadata only — storage cost is effectively nil</li>
+        </ul>
+      </div>
+      <div class="snapshot">
+        <span class="bar"></span>
+        <span class="cap">snapshot · hash-pinned</span>
+        <span class="bar"></span>
+      </div>
+      <div class="box">
+        <span class="bt">Working network — aggressively pruned</span>
+        <span class="bd">Levels L0–L3 cut hard. Microkinetics, DRC and S3 selection operate only on
+          this side.</span>
+        <ul>
+          <li>Ranking, flux, selection</li>
+          <li>Rebuilt from a pinned snapshot, never fed back into the ledger</li>
+        </ul>
+      </div>
+    </div>
+    <p class="figcap">Two clocks run independently — clock A for discovery until Ĉ converges, clock B
+      for S3 waves on a pinned snapshot. They need no manual synchronisation: while discovery is still
+      adding high-flux reactions the ranking keeps moving, which drops the stability metric and
+      <b>stalls S3 execution by itself</b>.</p>
+  </div>
+
+  <div class="note crit col">
+    <q>Computing Ĉ after pruning <b>contaminates f₁ and f₂, making the completeness number entirely
+      meaningless</b>. Without this separation, completeness estimation and pruning destroy each
+      other on the same data structure.</q>
+    <span class="src">ADR-027 — the U-05 decision</span>
+  </div>
+
+  <div class="stack col">
+    <h3>2.5 Layer I and layer II are counted separately</h3>
+  </div>
+<pre>layer I    chemistry <b>inside</b> engine-E1's enumeration grammar   → exhaustive, converges fast
+layer II   chemistry <b>outside</b> our grammar                      → only other engines reach it</pre>
+  <p class="col">Stopping criteria are evaluated per layer. Summed, <b>layer I’s fast convergence
+    hides layer II’s under-exploration</b>. If layer II misses the threshold the pipeline does not
+    stop — it reports <code>under-explored</code> and declines to produce a number. Layer II is also
+    precisely where the “electrolytes nobody has studied” requirement lives.</p>
+
+  <div class="stack col">
+    <h3>2.6 The pruning ladder, and what it forbids</h3>
+  </div>
+<pre>L0   conservation laws · ≤4 changing bonds · forbidden valences      (near-lossless)
+L1   drop single steps with ΔG &gt; +1.5 eV                            <span class="k-crit">no tighter than this</span>
+L2   cut the low-flux tail                                          threshold back-derived from
+                                                                    measured network size
+L3   protected set survives regardless of flux, and outranks L2
+
+<span class="k-crit">forbidden</span>  ΔG cutoff alone · depth alone   — the minor gas channels die first
+<span class="k-crit">forbidden</span>  treating L1 as selection        — selection is DRC's job. Do not mix them.</pre>
+
+  <div class="stack col">
+    <h3>2.7 Protection is defined by physical property, never by name</h3>
+    <p>The original rule protected paths to LiF, Li₂CO₃ and LEDC by name. An unstudied electrolyte
+      has no known target species, so the rule was rewritten in terms the pipeline computes anyway.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Rule</th><th>Definition</th><th>Why it transfers</th></tr></thead>
+      <tbody>
+        <tr><td class="tsym">P-1</td><td>Observable class set by ΔG<sub>solv</sub> threshold — volatile (DEMS) vs condensed (XPS)</td><td>ΔG<sub>solv</sub> is an SMD output we already compute, not prior knowledge</td></tr>
+        <tr><td class="tsym">P-2</td><td>Residence time τ = 1/Σk<sub>out</sub></td><td>This is the definition of “a product”; no name required</td></tr>
+        <tr><td class="tsym">P-3</td><td>Articulation edges — removal disconnects a large downstream subnetwork</td><td>Pure topology</td></tr>
+        <tr><td class="tsym">P-4</td><td>High flux × high branching entropy</td><td>Composition-independent generalisation of the earlier heuristic</td></tr>
+        <tr><td class="tsym">P-5</td><td>Value of Information</td><td>Already answer-independent</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="col">Priority is lexicographic: <code>Tier A = P-1 ∪ P-3</code> &gt;
+    <code>Tier B = P-4</code> &gt; <code>Tier C = P-5</code> &gt; <code>Tier D = residual flux</code>.</p>
+
+  <div class="stack col">
+    <h3>2.8 How transferability is actually demonstrated</h3>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Test</th><th>Procedure</th><th>Strength</th></tr></thead>
+      <tbody>
+        <tr><td class="tsym">test-E1</td>
+          <td>Blind rediscovery — switch off target-species protection and literature seeding, then ask
+            where the seven known products rank under P-1…P-5. Pass = all in the top 10 %.</td>
+          <td>Smoke test. <b>Passing does not demonstrate transfer</b> — it is the same chemistry.</td></tr>
+        <tr><td class="tsym">test-E2</td>
+          <td>Leave-one-chemistry-out — tune on carbonates alone, then test whether P–F chemistry is
+            discovered. LIBE’s FEC/VC/FSI/TFSI supply the hold-out for free.</td>
+          <td>The only development-time test that actually simulates an unknown system.</td></tr>
+        <tr><td class="tsym">test-E3</td>
+          <td>Pre-registered prediction — <b>freeze the pipeline</b>, apply it to an unseen electrolyte,
+            record the prediction first, then compare with literature.</td>
+          <td>Strongest. The freeze is the discipline: adjusting after seeing results is not a test.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><div class="snum">§3</div>
+    <div class="stack col">
+      <h2>S3 — why it became the critical stage</h2>
+      <p>Improving the search moved the constraint rather than removing it.</p>
+    </div>
+  </div>
+
+  <div class="note crit col">
+    <q>The bottleneck moves from <b>discovery</b> to <b>barriers</b>. Discovering 10⁵–10⁶ reactions
+      when a few hundred DFT transition states is the ceiling means the real deliverable is not the
+      network — it is the <b>barrier surrogate</b>.</q>
+    <span class="src">ADR-015 — recorded as the round’s principal finding</span>
+  </div>
+
+  <p class="col">Without barriers the network is an unordered list. S4’s kinetics, the identification
+    of dominant paths, and the predicted SEI composition all stand on top of it. This is carried as an
+    explicit project risk: <b>if the surrogate fails, the exhaustive search becomes meaningless.</b></p>
+
+  <div class="fig">
+    <div class="funnel">
+      <div class="frow">
+        <div class="fbar b1">10⁵ – 10⁶ &nbsp; discovered reactions</div>
+        <div class="fcap">from the ledger snapshot</div>
+      </div>
+      <div class="frow">
+        <div class="fbar b2">Marcus surrogate</div>
+        <div class="fcap">one parameter per reaction family</div>
+      </div>
+      <div class="frow">
+        <div class="fbar b3">DRC ranking</div>
+        <div class="fcap">ensemble, not point estimate</div>
+      </div>
+      <div class="frow">
+        <div class="fbar b4">~300</div>
+        <div class="fcap">explicit DFT TS + IRC — <b>the human-time ceiling</b></div>
+      </div>
+    </div>
+    <p class="figcap">Each stage of the funnel is cheap except the last, which is priced in human
+      review rather than core-hours.</p>
+  </div>
+
+  <div class="stack col">
+    <h3>3.1 What breaks as the count falls</h3>
+    <p>This table is the reason the pilot exists: the number it produces decides which of these rows
+      the project lands on.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th class="mono">Count</th><th>Buys</th><th>Gas branching</th><th>XPS composition</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">300</td><td>DRC-core 80 + family anchors 80 + top-flux 140</td>
+          <td><span class="pill p-ok">complete</span></td>
+          <td><span class="pill p-ok">4-component ratio</span></td><td>planned</td></tr>
+        <tr><td class="mono">150</td><td>80 + 50 + 20</td>
+          <td><span class="pill p-ok">complete</span></td>
+          <td><span class="pill p-open">±15–25 %</span></td><td>little real loss</td></tr>
+        <tr><td class="mono">100</td><td>80 + 20</td>
+          <td><span class="pill p-ok">holds</span></td>
+          <td><span class="pill p-crit">drops to 2-component</span></td><td>coarse ratio only</td></tr>
+        <tr><td class="mono">80</td><td>DRC-core only — <b>ensembling forced out</b></td>
+          <td><span class="pill p-crit">single scenario</span></td>
+          <td><span class="pill p-crit">not possible</span></td><td>defence line breached</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note crit col">
+    <h4>Why 80 is a different kind of loss</h4>
+    <q>150 → 100 is a <b>resolution</b> loss; the answer can still be shown to be wrong.
+      100 → 80 is a loss of <b>falsifiability</b>. Eighty reactions chosen by point DRC without
+      ensembling leave no instrument capable of revealing that the choice was wrong. A result still
+      appears — but it is a restatement of assumptions, not a verified prediction.</q>
+    <span class="src">proposer §9.1</span>
+  </div>
+  <p class="col">Below that line the project’s claim changes from <b>“we predict”</b> to
+    <b>“we present one scenario”</b>. Li₂CO₃ and ROCO₂Li fall first, and for a structural reason: several
+    paths converge on them, so their flux disperses and DRC scatters low. LiF survives because it comes
+    through a single PF₆⁻ channel.</p>
+
+  <div class="stack col">
+    <h3>3.2 The budget unit is a reaction family, not a reaction</h3>
+    <p>This is the move that buys human time without lowering review quality:
+      <b>15–25 families × 3–5 anchors ≈ 50–100 transition states</b> cover a large part of the network
+      with defensible rules. A reaction is exempt from explicit TS only if all four conditions hold.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Test</th><th>Condition</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr><td class="tsym">A1</td><td>≥ 3 explicit TS already exist in the family</td><td>Minimum sample to establish a correlation</td></tr>
+        <tr><td class="tsym">A2</td><td>Family BEP residual σ &lt; 0.1 eV</td><td><b>0.1 eV is ×50 in rate</b> — looser than this makes the rule meaningless</td></tr>
+        <tr><td class="tsym">A3</td><td>ΔG lies inside the family’s span — interpolation, not extrapolation</td><td>An extrapolated correlation has no basis</td></tr>
+        <tr><td class="tsym">A4</td><td>Ensemble DRC <code>|X_RC| &lt; 0.1</code></td><td>Being wrong by 0.2 eV would not move the observable</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="col">A1–A3 are insufficient without A4: however good the correlation, a rate-controlling
+    step must be computed directly. The converse also holds — <b>satisfying A4 makes A1–A3 tolerably
+    loose</b>.</p>
+
+  <div class="stack col">
+    <h3>3.3 The surrogate — and why BEP was rejected</h3>
+    <p>A linear Brønsted–Evans–Polanyi form <code>ΔG‡ = αΔG + β</code> produces
+      <b>negative barriers for strongly exothermic reactions</b>. The Marcus intrinsic-barrier
+      decomposition is used instead.</p>
+  </div>
+<pre>ΔG‡ = ΔG‡₀ · ( 1 + ΔG/(4ΔG‡₀) )²      for |ΔG| &lt; 4ΔG‡₀
+    = 0                                for ΔG ≤ −4ΔG‡₀     (barrierless limit)
+    = ΔG                               for ΔG ≥ +4ΔG‡₀     (fully endothermic limit)
+
+<span class="k-ok">ΔG is computed, not learned</span> — it comes from species thermochemistry we already have.
+<span class="k-ok">Only ΔG‡₀ is learned</span> — one parameter per reaction family.</pre>
+  <ul class="plain col">
+    <li><code>ΔG‡ ≥ max(0, ΔG)</code> holds <b>structurally</b>; BEP returns negative values.</li>
+    <li>Near ΔG ≈ 0 it reduces to slope ½, containing BEP as a special case.</li>
+    <li>Parameters per family drop from two (α, β) to one — decisive at n ≈ 300.</li>
+    <li>ΔG‡₀ is a far smoother function of structure than ΔG‡, so it transfers better.</li>
+  </ul>
+  <div class="note col">
+    <h4>Microscopic reversibility comes for free</h4>
+    <p>ΔG‡₀ is shared between forward and reverse directions, so
+      <code>ΔG‡_fwd − ΔG‡_rev = ΔG_rxn</code> holds <b>by construction</b>. A model predicting the two
+      directions separately breaks that identity — and then the kinetics develop cyclic fluxes that are
+      thermodynamically impossible.</p>
+  </div>
+
+  <p class="col">The architecture is a hierarchical Bayesian model with partial pooling:
+    <code>ΔG‡₀(r) = μ_global + b_family[family(r)] + w·x(r)</code>, with
+    <code>b_family ~ Normal(0, τ²)</code>. Families rich in anchors keep their own estimate; sparse
+    ones shrink toward the global mean; <b>a brand-new family gets the prior and a wide uncertainty —
+    which then steers active learning toward it</b>. Transferability, uncertainty and acquisition all
+    emerge from one structure.</p>
+
+  <p class="col">Feature design begins with an exclusion list: <b>element one-hots, functional-group
+    SMARTS, species names and system-specific constants are forbidden</b> — any one of them breaks
+    transfer. What remains is defined for every element: bond dissociation free energies, xTB Fukui
+    functions and partial charges, ΔΔG<sub>solv</sub>, charge/spin change class, steric size.</p>
+
+  <div class="note col">
+    <h4>The acceptance criterion, promoted to a project-wide principle</h4>
+    <q>Perturb the surrogate’s predictions by <b>the uncertainty it claims for itself</b> and re-run the
+      ensemble. If the conclusion does not flip, the surrogate is sufficient <b>for this decision</b>,
+      however inaccurate it is in general. The question is not “is the surrogate accurate?” but
+      <b>“does the conclusion we are about to draw survive the surrogate’s error?”</b></q>
+    <span class="src">proposer §15.6 → ADR-018</span>
+  </div>
+  <p class="col">The falsifier is <b>precision@k</b> — the fraction of the surrogate’s top k that is in
+    DFT’s true top k — together with the robustness test above. Reactions handled by rule get a
+    <code>barrier_source</code> flag and a correlated ±0.2 eV sweep that is promoted from a reported
+    error bar to a <b>gate</b>: if nothing flips, rule treatment is justified and no TS budget is owed;
+    if something flips, the specific reactions responsible are promoted to explicit TS.</p>
+
+  <div class="stack col">
+    <h3>3.4 Wave 1 is filled by target back-tracing, not by flux</h3>
+    <p>Rolling S3 shortens the critical path by 3–4 weeks, but filling the first wave by flux would
+      have been wrong: early network flux is biased toward shallow paths, structurally demoting the
+      LEDC route (3–4 generations deep) and the minor gas channels. <b>DFT budget spent early cannot
+      be recovered</b>, so wave 1 is filled by tracing back from the target species instead — same
+      schedule gain, no loss of the paths that the validation axes depend on.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><div class="snum">§4</div>
+    <div class="stack col">
+      <h2>What is still open</h2>
+    </div>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Item</th><th>Question</th><th>Blocked on</th></tr></thead>
+      <tbody>
+        <tr><td class="tsym">U-05-d</td><td>L2 flux threshold</td><td>Back-derived once network size is measured — cannot be set before</td></tr>
+        <tr><td class="tsym">U-06</td><td>Whether to use an MLIP, and which foundation model</td><td>U-05</td></tr>
+        <tr><td class="tsym">U-07</td><td>S3 level of theory and the MLIP↔DFT division of labour</td><td>U-06</td></tr>
+        <tr><td class="tsym">U-12-c</td><td><b>If family count exceeds ~100 the hierarchical model collapses to the global mean.</b> Measure the family distribution in the first DFT TS batch</td><td>first TS batch</td></tr>
+        <tr><td class="tsym">U-15</td><td>What determines the principal species list for an unstudied system</td><td>unresolved in principle</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note warn col">
+    <h4>U-15 is the uncomfortable one</h4>
+    <p>The transformation grammar is element-agnostic and transfers. <b>The starting set does not.</b>
+      Which molecules go into the principal list is still a human decision, and for a genuinely
+      unstudied electrolyte there is currently no principle for making it. Everything downstream
+      inherits that choice.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><div class="snum">§5</div>
+    <div class="stack col">
+      <h2>Where the pilot fits</h2>
+    </div>
+  </div>
+  <p class="col">The cluster pilot is not a warm-up. Its largest item — <b>P1, 9,216 of 16,679
+    expected core-hours, roughly 55 %</b> — is described in the package as <em>“one transition state
+    carried to completion; the only measurement of S3 TS unit cost.”</em> Its P6 items measure κ,
+    how many times slower this node is than our reference, and S, the thread count at which Gaussian
+    stops scaling.</p>
+<pre>κ currently   <span class="k-open">[ESTIMATE] 3.4 – 6.8</span>   a factor-of-two spread
+consequence   19.7 weeks  vs  23.1 weeks (schedule death)
+</pre>
+  <p class="col">κ converts core-hours into wall-clock, so until it is measured, “we can afford a
+    better level of theory” is a number without units. That is why the methodology decisions above
+    stop where they do — <b>the remaining choices are gated on a measurement, not on an argument.</b></p>
+  <p class="col">Infrastructure results already in hand: 200 concurrent jobs on 200 distinct hosts
+    with zero rejections, queue waits of 57–60 s at 1/4/16 nodes, and the 48-hour wall limit confirmed
+    by direct query. The compute-availability axis is settled; the chemistry unit costs are not.</p>
+</section>
+
+<footer>
+  <p>Compiled from <code>docs/00_PROJECT_BRIEF.md</code>, <code>docs/01_DECISION_LOG.md</code>
+    (ADR-001 … ADR-063) and <code>docs/02_METHOD_SPEC.md</code>. Quotations are from the confirmed
+    records, not paraphrase.</p>
+  <p>Bracketed markers carry their literal meaning throughout:
+    <code>[MEASURED]</code> observed on the cluster · <code>[ESTIMATE]</code> derived, not observed ·
+    <code>[provisional]</code> subject to replacement by measurement.</p>
+</footer>
+
+</div>

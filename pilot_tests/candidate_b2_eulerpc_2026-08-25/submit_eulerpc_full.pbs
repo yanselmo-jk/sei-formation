@@ -1,0 +1,44 @@
+#!/bin/sh
+#PBS -V
+#PBS -q normal
+#PBS -N sei_u56_eulerpc_full
+#PBS -A gaussian
+#PBS -l select=1:ncpus=64:mpiprocs=1:ompthreads=64
+#PBS -l walltime=40:00:00
+# EulerPC escalation FULL run (proposer13 §39.129, 02_METHOD_SPEC.md; engineer14 pricing
+# §R39.85, 03_COMPUTE_PLAN.md:19779-19908) -- BACKUP TIER, staged for logistics alongside
+# Candidate B (one cluster round-trip), NOT a promotion. Only submit if BOTH: (1) Candidate B
+# (candidate_b_reverse_stepsize_2026-08-25/) has already run and its own mandatory checks show
+# it failed, AND (2) submit_eulerpc_smoke.pbs has already run and its route-syntax/echo checks
+# passed. EulerPC does NOT replace HPC's corrector, it only swaps the predictor -- it shares
+# the exact Bulirsch-Stoer/DWI corrector that failed at Candidate A's Point 7 (§39.126), so
+# expectation should be calibrated down accordingly, not treated as an independent second try.
+#
+# stepsize=2 and recorrect=never are IDENTICAL to Candidate B's own deck, on purpose
+# (single-variable-change discipline, §39.129(3)) -- the only route difference from Candidate
+# B is the EulerPC predictor keyword and the wider maxpoints hedge below.
+#
+# Walltime: engineer14's §R39.85 (03_COMPUTE_PLAN.md:19817-19863) pricing -- targeted/expected
+# (63 pts): 121.0-459.9 core-h => 1.9-7.1h wall. Requested ceiling (100 pts, maxpoints=100's
+# full budget consumed): 192.0-730.0 core-h => 3.0-11.3h wall at 64 cores. 40h is a ~3.5x
+# margin over the pessimistic 11.3h ceiling, matching this project's standard margin
+# discipline elsewhere on this work item, while staying under ADR-114's 48h cap with ~8h to
+# spare. NOTE (engineer14's own flag, not this coder's): this is the NARROWEST wall margin
+# priced on this work item so far against the 48h cap itself (~4.2x at the pessimistic ceiling
+# vs. >12x everywhere else) -- not a blocker, but do not stack a same-day retry of this job
+# behind other 48h-class jobs without checking total elapsed wall-clock first.
+#
+# Cores come from the deck's own %nprocshared=64 line (engineer14 §R39.82 §6's explicit
+# requirement, carried over unchanged for this tier -- no builder default; this deck was built
+# with --total-cores 64, verified in irc_eulerpc_probe.gjf). GAUSS_NPROCSHARED is NOT a
+# Gaussian 16 variable and is deliberately absent here, same convention as every other script
+# in this project.
+set -u
+cd "${PBS_O_WORKDIR:-.}" || exit 1
+trap 'echo "[sei] SIGTERM $(date -u +%FT%TZ): eulerpc_full killed before completion" >> eulerpc_full_kill.marker; exit 1' TERM
+module load gaussian/g16.c01.linda 2>/dev/null || echo '[sei] module load gaussian/g16.c01.linda failed - continuing'
+echo "[sei] eulerpc_full start $(date -u +%FT%TZ)"
+g16 < irc_eulerpc_probe.gjf > irc_eulerpc_probe.log 2>&1
+rc=$?
+echo "[sei] eulerpc_full end $(date -u +%FT%TZ) rc=$rc"
+exit $rc

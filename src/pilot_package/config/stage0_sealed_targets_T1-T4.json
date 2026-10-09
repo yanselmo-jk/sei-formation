@@ -1,0 +1,52 @@
+{
+  "_purpose": "SEALED pre-registration of stage 0's rediscovery targets, per 02_METHOD_SPEC.md section (e) 'The blind rediscovery pilot' and its BLINDNESS clause: 'the target list is written to a sealed file and its hash recorded in the discovery ledger BEFORE the first run starts.' Written by proposer13, 2026-08-25. DO NOT MODIFY after its hash is recorded in the ledger -- a changed file after the fact defeats the entire purpose of sealing it. If the target definitions ever need to change, write a NEW file with a new name and a new ledger entry; never edit this one in place.",
+  "system": "R-C reactant (E21 / T21-se's own reactant), Li+(EC)2, 21 atoms, neutral doublet radical",
+  "reactant_xyz_path": "inputs/li_ec2_radical_reactant.xyz",
+  "reactant_xyz_sha256": "8cdbf3e84f0efebc699f205199487616f6eed5c2c6242927a8d58ca832e29076",
+  "atom_indexing": "0-based, matching sei_pilot.criteria.xyzgraph.read_xyz_frames' own atom order for this exact file -- indices below are ONLY valid against this exact starting structure (bound by reactant_xyz_sha256 above; if that hash ever fails to match, these indices are void and the targets must be re-derived, not reused).",
+  "bond_perception": "sei_pilot.criteria.xyzgraph.bond_list, default tolerance BOND_TOLERANCE=1.25x sum of covalent radii, include_ionic=False (Li-coordination is not a covalent bond in this graph -- matches stage0_md.sh's own classifier exactly, verified against payload/stage0_md.sh's bonds_at()).",
+  "verified_reactant_topology": {
+    "note": "Independently re-derived by proposer13 by running xyzgraph.bond_list against the real inputs/li_ec2_radical_reactant.xyz, not assumed from the prose description in 02_METHOD_SPEC.md. Two EC (ethylene carbonate) rings + one isolated Li (3 covalent-graph components, matching stage0_md.sh's own comment 'the reactant itself reports as 3 fragments').",
+    "EC_ring_1_atoms_0_to_9":  {"C_carbonyl": 0, "O_ether_a": 1, "C_alkyl_a": 2, "C_alkyl_b": 3, "O_ether_b": 4, "O_carbonyl_exocyclic": 5, "H_on_C2": [6,7], "H_on_C3": [8,9]},
+    "EC_ring_2_atoms_10_to_19": {"C_carbonyl": 10, "O_ether_a": 11, "C_alkyl_a": 12, "C_alkyl_b": 13, "O_ether_b": 14, "O_carbonyl_exocyclic": 15, "H_on_C12": [16,17], "H_on_C13": [18,19]},
+    "Li": 20,
+    "ring_bonds_measured_ang": {
+      "ring1": {"[0,1] C_carbonyl-O_ether_a": 1.380, "[0,4] C_carbonyl-O_ether_b": 1.381, "[0,5] C_carbonyl=O_carbonyl": 1.254, "[1,2] O_ether_a-C_alkyl_a": 1.413, "[2,3] C_alkyl_a-C_alkyl_b": 1.538, "[3,4] C_alkyl_b-O_ether_b": 1.416},
+      "ring2": {"[10,11] C_carbonyl-O_ether_a": 1.381, "[10,14] C_carbonyl-O_ether_b": 1.381, "[10,15] C_carbonyl=O_carbonyl": 1.254, "[11,12] O_ether_a-C_alkyl_a": 1.416, "[12,13] C_alkyl_a-C_alkyl_b": 1.538, "[13,14] C_alkyl_b-O_ether_b": 1.413}
+    }
+  },
+  "matching_convention": "target matching is by MOLECULAR GRAPH UP TO PERMUTATION, never by a single hardcoded atom pair (02_METHOD_SPEC.md, GRADING KEY clause) -- both EC rings are chemically equivalent and both ether oxygens on a given ring are chemically equivalent, so each bond-based target below lists ALL index pairs that would satisfy it; a target is RECOVERED if ANY ONE of its listed pairs matches the observed event, not all of them.",
+  "targets": {
+    "T1": {
+      "description": "ring opening at the ALKYL C-O bond (O_ether-C_alkyl) -- this is R-A's product channel, the same bond class already certified as U56_RA_scan's own declared break/form pair (O_ether-C_sp3).",
+      "criterion": "bond_break",
+      "match_rule": "RECOVERED if any pair below appears in a frame's bonds_broken_vs_reactant (payload/stage0_md.sh's own field name/shape) -- i.e. that bond, present in the reactant, is absent in the observed frame.",
+      "candidate_bond_pairs": [[1,2],[3,4],[11,12],[13,14]],
+      "pair_labels": {"[1,2]": "ring1 O_ether_a-C_alkyl_a", "[3,4]": "ring1 C_alkyl_b-O_ether_b", "[11,12]": "ring2 O_ether_a-C_alkyl_a", "[13,14]": "ring2 C_alkyl_b-O_ether_b"}
+    },
+    "T2": {
+      "description": "ring opening at the CARBONYL C-O bond (C_carbonyl-O_ether) -- this is R-B's channel (the candidate this project rejected on mode-character grounds, not a claim the chemistry itself is impossible).",
+      "criterion": "bond_break",
+      "match_rule": "RECOVERED if any pair below appears in a frame's bonds_broken_vs_reactant.",
+      "candidate_bond_pairs": [[0,1],[0,4],[10,11],[10,14]],
+      "pair_labels": {"[0,1]": "ring1 C_carbonyl-O_ether_a", "[0,4]": "ring1 C_carbonyl-O_ether_b", "[10,11]": "ring2 C_carbonyl-O_ether_a", "[10,14]": "ring2 C_carbonyl-O_ether_b"}
+    },
+    "T3": {
+      "description": "C2H4 (ethylene) elimination from a ring-opened intermediate. No separate 'from a ring-opened intermediate' precondition is needed or encoded -- a genuinely free C2H4 fragment (both O_ether-C_alkyl bonds of the same ring broken, releasing the alkyl backbone entire) is topologically unreachable without a prior ring-opening event, so the fragment test alone is sufficient and correctly scoped.",
+      "criterion": "fragment_formula_appears",
+      "match_rule": "RECOVERED if any connected component in a frame's own graph (xyzgraph.connected_components + xyzgraph.formula, same functions stage0_md.sh's fragments_at() already uses) has Hill formula exactly 'C2H4'.",
+      "formula": "C2H4"
+    },
+    "T4": {
+      "description": "CO release from a ring-opened intermediate. Same reasoning as T3 -- a free CO diatomic is topologically unreachable without prior ring-opening, no separate precondition encoded.",
+      "criterion": "fragment_formula_appears",
+      "match_rule": "RECOVERED if any connected component in a frame's own graph has Hill formula exactly 'CO'.",
+      "formula": "CO"
+    }
+  },
+  "known_limitations_stated_not_hidden": [
+    "T1/T2's candidate_bond_pairs are enumerated from the ONE certified starting structure's own fixed atom ordering, not a true graph-isomorphism search -- correct and sufficient here because atom indices do not change within a single MD trajectory and every seed starts from this same structure (per the discovery ledger's own initial_condition_hash convention, which folds in 'the hash of the PRE-OPTIMISED start structure'). If a future run ever used a differently-ordered or differently-sourced starting structure, these index pairs would need re-deriving, not reusing -- reactant_xyz_sha256 above exists to make that condition detectable rather than silently wrong.",
+    "T3/T4 do not currently distinguish WHICH ring or WHICH EC unit produced the fragment, nor whether both T1-type bonds or a T1+T2 mixed pair broke to release it -- the sealed target list only claims RECALL of the four named events, not a full mechanistic assignment; a positive T3/T4 hit is evidence a discovery occurred, not by itself evidence of which pathway produced it (that would need a per-event bond-history read, deliberately out of scope for stage 0's own target-blind classifier).",
+    "Li coordination is excluded from all bond perception here (include_ionic=False), matching this project's own Layer-C convention throughout -- Li's own motion/coordination changes are not part of any target's definition, consistent with how R-A/R-B already treat Li as a reported covariate, not a decision input (C-3, §39.70)."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "_doc": "P2g (xtb GFN-FF 주기계) 사양 — 🔴 단일 출처. payload 에 수치를 박지 마라.",
+  "schema_version": "1.0",
+  "v1_translation_invariance": {
+    "_doc": "🔴 PBC 정합성 단위시험. grimme-lab/xtb Issue #1118 (v6.7.1 = 동봉 버전, 미해결).",
+    "_why": "GFN-FF PBC MD 에서 unwrap + 에너지 drift 가 보고됐고 개발자 코멘트가 없다. '된다'고 가정하면 안 된다. 실패하면 (A) 경로 전체가 흔들린다.",
+    "shift_fractions": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.25,
+      0.5
+    ],
+    "_tolerance_basis": "🔴 원자당 1e-6 Eh. MD 에너지 보존 기준으로 통상 쓰이는 1e-5 Eh/atom 보다 10배 엄격하다. **총량 기준을 쓰지 않는 이유**: 총 편차는 원자 수에 비례해 커져서 큰 상자일수록 자동으로 실패한다. 우리 박스 실측은 4.2e-5 Eh / 270 atom = 1.6e-7 Eh/atom 이다.",
+    "box_n_side": 3,
+    "tolerance_hartree_per_atom": 1e-06,
+    "_cache_pitfall": "🔴 **각 이동을 독립 디렉터리에서 돌려야 한다.** xtb 는 GFN-FF 토폴로지를 `gfnff_topo` 에 캐시하고 다음 실행에서 재사용한다. 같은 디렉터리에서 연속 실행하면 2회차부터 **1회차의 토폴로지**를 이동된 좌표에 적용해 **591 eV 짜리 가짜 편차**가 나온다. 우리는 실제로 그 함정에 빠졌다가 격리 후 값이 4.2e-5 Eh 로 바뀌는 것을 확인했다. 이 시험을 고칠 때 격리를 없애지 마라."
+  },
+  "v2_li_ec_rdf": {
+    "_doc": "Li+(EC)4 액체 50 ps → Li–O RDF 첫 봉우리·배위수.",
+    "picoseconds": 50.0,
+    "timestep_fs": 1.0,
+    "temperature_k": 313.0,
+    "dump_fs": 50.0,
+    "composition": {
+      "_decision": "🔴 [coder 결정 — lead 확인 요망] 사양은 'Li+(EC)4 액체'였는데 **주기계 셀의 전하 중성**을 어떻게 맞출지가 지시에 없다. 세 선택지(① PF6- 대이온 ② 전하 있는 셀 + 보정 배경 ③ 비주기 클러스터) 중 ①을 골랐다.",
+      "_why": "② 는 GFN-FF 주기계에서 검증되지 않았고, ③ 은 '액체'가 아니라 클러스터라 RDF 의 의미가 달라진다. ① 은 LiPF6/EC 로 **실제 전해질**이며 두 종 모두 이미 동봉돼 있다(새 입력 없음). 막고 물으면 왕복 1회(3.5일)를 쓴다 — 대신 이 결정을 여기 한 곳에 적어 뒤집기 쉽게 뒀다.",
+      "n_li": 4,
+      "n_pf6": 4,
+      "n_ec": 16,
+      "_ratio_note": "EC:Li = 4:1 (사양 그대로). 셀 총전하 0.",
+      "_to_change": "n_pf6 를 0 으로 두고 payload 에 --chrg 를 주면 ② 가 된다. 그 경로는 미검증이다."
+    },
+    "estimated_core_hours": 20.0,
+    "_estimate_basis": "🔴 [MEASURED, 개발 박스] 270원자 EC 상자 1 ps = 533 s (1 core). 이 계는 ~228원자이므로 50 ps ≈ 7.4 core-h. 클러스터 코어가 느릴 수 있어 2.7배 여유를 뒀다."
+  },
+  "_what_we_report": "🔴 원자료만 넘긴다. 물리 판정(RDF 봉우리 위치가 타당한가 등)은 proposer 몫이다."
+}

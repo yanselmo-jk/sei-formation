@@ -1,0 +1,24 @@
+{
+  "_doc": "🔴 노드 sizing 정책 — **단일 출처**. 코어 수를 셸이나 payload 에 박지 마라.",
+  "_why": "로그인 노드(24)로 계산 노드(64+)를 sizing 해 예약이 2.7배 어긋난 사고가 있었다. 그리고 감지값과 실제 사용 가능 코어가 다를 수 있다(68코어 시스템에서 64만 사용).",
+  "schema_version": "1.0",
+  "usable_cores": {
+    "_doc": "감지된 코어 수 → 실제로 요청할 코어 수. 감지값이 그대로 스케줄 가능한 값이 아닐 때만 쓴다.",
+    "_source": "사용자 확인: '계산 노드는 68 core system (64코어만 사용)'. engineer §R18: select=1:ncpus=64",
+    "map": {
+      "68": 64
+    },
+    "_note": "여기 없는 값은 감지값을 그대로 쓴다. --cores-per-node 는 이 표보다 우선한다."
+  },
+  "warn_if_login_differs_from_compute": true,
+  "pbs": {
+    "_doc": "🔴 PBS 제출 형태. 실제 클러스터에서 필터 훅(job_submit_filter)이 4/4 거부한 뒤 사용자 정본 스크립트에 맞춰 조정한 값들이다.",
+    "_status": "[UNVERIFIED — 사용자 클러스터에서만 확인 가능]",
+    "ncpus_per_node": null,
+    "_ncpus_note": "null 이면 감지된 코어 수를 쓴다. 우선순위는 `--ncpus-per-node` > 이 값 > 감지값. 사이트가 select 의 ncpus 를 특정 값으로 제한하면(사용자 정본은 ncpus=32) 여기에 넣거나 플래그로 덮어라. 🔴 기본값은 임의로 바꾸지 않았다 — 32 가 사이트 제한인지 그 잡의 사정인지 우리는 모른다(lead 지시).",
+    "emit_stdio_lines": false,
+    "_stdio_note": "`-o`/`-e` 절대경로가 공유 FS 밖이면 훅이 거부한다. 사용자 정본에는 두 줄이 없다. true 로 두면 $PBS_O_WORKDIR 기준 **상대경로**로 낸다.",
+    "max_probe_nodes": 16,
+    "_max_probe_note": "🔴 probe_queuewait 가 85노드를 요청해 거부됐다. 큐 상한을 모르는 동안 기본을 낮게 잡는다 — 거부되면 측정 자체가 0이다. 회신에 축소 사실을 남긴다."
+  }
+}

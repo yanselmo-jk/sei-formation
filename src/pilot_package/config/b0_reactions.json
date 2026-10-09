@@ -1,0 +1,183 @@
+{
+ "_doc": "B0-F — the TS METHOD BAKE-OFF. 3 reactions x 2 methods = 6 attempts, AT COMPOSITE.",
+ "_ruling": "lead relaying proposer5, 2026-08-19. Answers U-56: the TS success rate is UNMEASURED (not 0/1) because P1's single attempt ran outside the method's preconditions and counts in neither direction.",
+ "schema_version": "1.0",
+ "level": {
+  "geometry_and_hessian": "level3",
+  "single_point": "level2",
+  "_note": "🔴 C-11. COMPOSITE: geometry + Hessian at def2-SVPD (level3), single point at def2-TZVPPD (level2). P1 ran level2 THROUGHOUT and therefore never exercised the production protocol; a bake-off at level2 would measure a protocol we do not use, which is the same class of error as P1 itself."
+ },
+ "_break_form_convention": "🔴 BY CHEMICAL ROLE, NEVER BY ATOM INDEX. Roles transfer to a species nobody has drawn yet; indices are an artefact of the file. The builder emits the role->index mapping beside each deck (sei_pilot/roles.py) and THAT MAPPING is what Omega is scored against. A deck without its mapping cannot be scored.",
+ "reactions": [
+  {
+   "id": "R-A",
+   "name": "LiEC(radical) ring-opening via the ALKYL C-O",
+   "reactant_species": "li_ec_radical",
+   "n_atoms": 11,
+   "charge": 0,
+   "multiplicity": 2,
+   "break": [
+    [
+     "O_ether",
+     "C_sp3"
+    ]
+   ],
+   "form": [],
+   "mechanism": [
+    [
+     "Li",
+     "O_ether"
+    ]
+   ],
+   "_mechanism_why": "🔴 [§39.63, MEASURED — overturns §39.62's 11-vs-21-atom asymmetry] Li migrates onto the BREAKING oxygen in ALL THREE reactions, by roughly the same amount: R-A -0.75, R-B -0.85, R-C -0.79 Angstrom along the 1-D scan. The earlier belief that only the 21-atom case needed this came from the HYSTERESIS result (R-A's 1-D and 2-D barriers agree to 0.003 eV) -- but those are different questions. Hysteresis asks whether a sequential 1-D scan can FOLLOW the motion smoothly (yes at 11 atoms, no at 21); this list asks whether the motion is PART OF THE REACTION (yes everywhere). 🔒 Consequence, stated because it is uncomfortable: with Li declared, P1's saddle is NOT a spectator by §39.62's definition and that test PASSES it. The instrument that actually catches P1 is the BRACKET CHECK (the broken bond is already 3.18 A, past the product's 2.50), not the spectator test. Neither test is weakened by saying so. Not O_carbonyl: Li LEAVES the carbonyl oxygen and ARRIVES at the ethereal one, and the arriving coordinate is the one that made R-C's path smooth in 2-D.",
+   "production_sized": false,
+   "_purpose": "P1's own reaction, run for the first time with its preconditions met. 🔴 P1 is NOT evidence against QST2 -- it never met QST2's stated precondition that both endpoints be optimised minima. This is the first interpretable attempt, not a repeat."
+  },
+  {
+   "id": "R-B",
+   "name": "LiEC(radical) ring-opening via the CARBONYL C-O",
+   "reactant_species": "li_ec_radical",
+   "n_atoms": 11,
+   "charge": 0,
+   "multiplicity": 2,
+   "break": [
+    [
+     "O_ether",
+     "C_carbonyl"
+    ]
+   ],
+   "form": [],
+   "mechanism": [
+    [
+     "Li",
+     "O_ether"
+    ]
+   ],
+   "_mechanism_why": "🔴 [§39.63, MEASURED — overturns §39.62's 11-vs-21-atom asymmetry] Li migrates onto the BREAKING oxygen in ALL THREE reactions, by roughly the same amount: R-A -0.75, R-B -0.85, R-C -0.79 Angstrom along the 1-D scan. The earlier belief that only the 21-atom case needed this came from the HYSTERESIS result (R-A's 1-D and 2-D barriers agree to 0.003 eV) -- but those are different questions. Hysteresis asks whether a sequential 1-D scan can FOLLOW the motion smoothly (yes at 11 atoms, no at 21); this list asks whether the motion is PART OF THE REACTION (yes everywhere). 🔒 Consequence, stated because it is uncomfortable: with Li declared, P1's saddle is NOT a spectator by §39.62's definition and that test PASSES it. The instrument that actually catches P1 is the BRACKET CHECK (the broken bond is already 3.18 A, past the product's 2.50), not the spectator test. Neither test is weakened by saying so. Not O_carbonyl: Li LEAVES the carbonyl oxygen and ARRIVES at the ethereal one, and the arriving coordinate is the one that made R-C's path smooth in 2-D.",
+   "production_sized": false,
+   "_purpose": "🔴 R-B IS THE DESIGN. Same reactant as R-A, different coordinate -- TWO REAL SADDLES ON ONE PES. P1 failed by converging to a saddle that was not the intended one, so R-A vs R-B is the sharpest available test of whether Omega can tell two genuine saddles apart. It is also the C2H4-vs-CO product branching, i.e. ADR-003 validation axis (a).",
+   "_pairing": "R-A and R-B share a reactant BY DESIGN. Do not deduplicate them into one endpoint optimisation result -- the shared reactant is what makes the comparison clean, and the two searches must still be scored independently."
+  },
+  {
+   "id": "R-C",
+   "name": "Li+(EC)2(radical anion) ring-opening, alkyl C-O",
+   "reactant_species": "li_ec2_radical",
+   "n_atoms": 21,
+   "charge": 0,
+   "multiplicity": 2,
+   "break": [
+    [
+     "O_ether",
+     "C_sp3"
+    ]
+   ],
+   "form": [],
+   "mechanism": [
+    [
+     "Li",
+     "O_ether"
+    ]
+   ],
+   "_mechanism_why": "🔴 [§39.63, MEASURED — overturns §39.62's 11-vs-21-atom asymmetry] Li migrates onto the BREAKING oxygen in ALL THREE reactions, by roughly the same amount: R-A -0.75, R-B -0.85, R-C -0.79 Angstrom along the 1-D scan. The earlier belief that only the 21-atom case needed this came from the HYSTERESIS result (R-A's 1-D and 2-D barriers agree to 0.003 eV) -- but those are different questions. Hysteresis asks whether a sequential 1-D scan can FOLLOW the motion smoothly (yes at 11 atoms, no at 21); this list asks whether the motion is PART OF THE REACTION (yes everywhere). 🔒 Consequence, stated because it is uncomfortable: with Li declared, P1's saddle is NOT a spectator by §39.62's definition and that test PASSES it. The instrument that actually catches P1 is the BRACKET CHECK (the broken bond is already 3.18 A, past the product's 2.50), not the spectator test. Neither test is weakened by saying so. Not O_carbonyl: Li LEAVES the carbonyl oxygen and ARRIVES at the ethereal one, and the arriving coordinate is the one that made R-C's path smooth in 2-D.",
+   "production_sized": true,
+   "_purpose": "🔴 THE PRODUCTION-SIZED DATUM. ADR-034 ground 3 ('a high-level TS = 172 h = 8 chain links') has NEVER been measured: we hold exactly one high-level TS datum, 4.74 h wall on an 11-atom species, which is not comparable to a production-sized system and must not be read as either good or bad news. R-C under BOTH methods supplies the 2 production-sized attempts of 6 that §39.13(a)#4 requires."
+  }
+ ],
+ "methods": [
+  {
+   "id": "QST2",
+   "route": "opt=(qst2,calcfc)",
+   "needs_endpoints": true,
+   "_note": "🔴 C-8 applies with full force: refuses to start unless BOTH endpoints are converged minima with n_imag == 0 at the SAME level."
+  },
+  {
+   "id": "relaxed_scan",
+   "route": "relaxed surface scan along the designated breaking coordinate, then opt=(ts,calcfc,noeigentest)",
+   "needs_endpoints": false,
+   "_note": "Driven by the EDGE -- it needs only the break list, which the grammar already emits. No endpoint pairing and no atom-order matching. proposer5 prefers this as the S3 default ON AN ARGUMENT, NOT ON DATA; this bake-off is what supplies the data.",
+   "_known_silent_failure": "a scan that quietly changes electronic state mid-way produces a cusp that reads as a barrier. DETECTABLE: monitor <S^2> and the SCF solution along the scan. Our chemistry is radical anions, so this is not a remote risk."
+  }
+ ],
+ "acceptance": {
+  "_doc": "🔴 C-12. THE FALLBACK IS CONDITIONED ON THESE, NOT ON THE EXIT STATUS. RT-1's QST2 -> single-ended fallback fired only if QST2 FAILED TO CONVERGE; QST2 converged, to the wrong saddle, and the fallback never fired.",
+  "checks": [
+   "exactly_one_imaginary_mode",
+   "mode_overlap_omega_reported",
+   "connectivity_confirmed_by_displaced_mode_optimisation",
+   "irc_or_displaced_opt_reaches_the_intended_product"
+  ],
+  "omega_threshold": null,
+  "_omega_threshold_note": "🔴 C-3: DO NOT HARD-CODE Omega_min. Emit Omega and its provenance; the threshold is CALIBRATED later from the reviewed TS set. `null` here means NOT SET, and any code reading it must treat that as 'report, do not gate'. Hard-coding a number now is exactly how -100 cm^-1 got into M2."
+ },
+ "tripwire": {
+  "per_job_wall_h": 6.0,
+  "_source": "03_COMPUTE_PLAN R35.2b, proposer5's explicit number, adopted as written and NOT left to the queue's 48 h default.",
+  "on_abort": "record status [TRIPWIRE-ABORTED], REPORT the core-h consumed, never discard it",
+  "_on_abort_note": "C-13. An aborted run is a MEASUREMENT OF DIFFICULTY, which is half of what these probes are for."
+ },
+ "u56_2": {
+  "_doc": "🔴 [ADR-109 / §39.39(d)] U56-2 — the U-56a gate instrument: 4 single-/double-ended TS attempts + 3 endpoint certifications. R-A x {QST2, relaxed_scan} + R-B x relaxed_scan + R-C x relaxed_scan.",
+  "released": true,
+  "_released_note": "🔒 [S-2 패턴, deck_verified 와 동일] ADR-109: U56-2 items enter a FUTURE round only after engineer7 pricing (§R39) + a critic pass. 🟢 [2026-08-21] Flipped true by lead, explicit user approval, per coder13's u56_2.released code-trace (all-or-nothing at plan level: endpoint_prep_product, endpoint_prep_rc_reactant/E21, U56_RA_scan, U56_RA_qst2, U56_RB_scan all enter default_items() together; individual attempt spend still gated at runtime by C-8, independent of E21). 🔴 코드는 이 플래그를 절대 올리지 않는다. 올린 것은 lead/사용자 몫이었다 — flip 자체는 수동 config 편집이지, 코드 경로가 아니다.",
+  "scan": {
+   "coarse_n_steps": 12,
+   "coarse_step_ang": 0.1,
+   "refine_n_steps": 8,
+   "refine_step_ang": 0.025,
+   "refine_trigger_delta_ev": 0.05,
+   "max_total_points": 20,
+   "_status": "🟢 [§39.42(b), proposer7 판정 2026-08-20] coarse 12 × 0.10 Å 승인 — **guess 전용, barrier 값으로 읽지 않는다** (0.05 Å 격자가 0.01 Å 대비 최댓값을 0.10 eV 낮게·0.05 Å 어긋나게 낸 실측). 사전등록은 '8–15'에서 '12 coarse + ≤8 refine, ≤20 total'로 개정됐다. 시작 d 는 **인증된 끝단 자신의 값**(ModRedundant S 스캔이 현재값에서 출발하므로 구조적으로 보장) — 1.40 가정 금지, 시작값은 결과에 emit 된다. engineer7 재가격 중.",
+   "_refine_note": "🔴 refine pass 는 **조건부(triggered)** 다: (i) 최댓값 인접점 |ΔE| > refine_trigger_delta_ev, 또는 (ii) 최댓값이 스캔 범위 끝. 발동 시 최댓값 앞 점에서 8 × 0.025 Å 로 최댓값 양옆을 덮는다. 항상 돌면 R-A 처럼 깨끗한 격자에서 낭비다(§39.42(b)의 '트리거가 규칙을 전이 가능하게 만든다').",
+   "_direction_note": "break 좌표이므로 step 은 양수(신장)만 허용한다. 음수(압축)로 균일분해를 스캔하는 것은 다른 실험이다."
+  },
+  "irc_hessian_source": "calcfc",
+  "_irc_hessian_source_note": "🔒 calcfc(기본) | readfc. readfc = TS freq 단계의 .chk 를 rcfc 로 재사용(engineer7 §R39.15 4a 절감). 🔴 dev box 에 G16 이 없어 rcfc 경로 미검증 — 다음 제출 route smoke 통과 후 lead 가 올린다(deck_verified/released 와 같은 규칙: 코드는 안 올린다). .chk 이관 배관은 스위치와 무관하게 항상 동작한다.",
+  "_endpoint_items": "endpoint cert 3건: reactant(R-A/R-B 공유, 11원자) = endpoint_prep_reactant(비행 중) · R-A product(11원자, role=product, 🔴 이중 시작점 — packaged guess 가 GFN2 에서 scan 유래 open 구조보다 0.59 eV 위 basin[MEASURED, §39.41]이라 둘 다 rough opt 후 낮은 쪽 채택) · R-C reactant(li_ec2_radical, 21원자, inputs/li_ec2_radical_reactant.xyz — §39.42(a) 6-seed 최저 basin, provenance sidecar 동봉). 🔴 셋 다 P1 부활이 아니라 B0-F grounds 다(ADR-109 ruling 2). 21원자 cap 은 24h/1,536 core-h [engineer7 §R39 채택] — 6h/384 를 물려받으면 budget_exhausted 가 '종이 실패함'으로 오독된다(li_ec2_cation 282.7 core-h 미수렴 실측)."
+ },
+ "p5_freq_recovery": {
+  "released": false,
+  "_released_note": "🔒 Same S-2 release gate as u56_2/sp_ladder. [§39.103 / §R39.65, 2026-08-21] P5 freq-only recovery: 17 stored converged geometries, one Hessian each at production settings. Rows, budgets and skipped set live in config/p5_freq_recovery.json. 🔴 The code never flips this; lead/user does, after Round A's acetone deck has returned a real freq."
+ },
+ "sp_ladder": {
+  "_doc": "🔴 [§39.47(c), §R39.26] The SP ladder: DFT single points laid on a GFN2 path, because a full TS search is unaffordable at production size. Rungs n=1,2,3 ship; n=4 is absent until its 2-D scan exists (§39.48(c): 1-D inflates the barrier by 0.00/0.10/0.21 eV at n=1/2/3, so an n=4 rung without one buys a number wrong by an unmeasured amount).",
+  "released": false,
+  "_released_note": "🔒 [S-2 pattern, same as u56_2] Built and tested every round, joined into default_items() only when this is true. 🔴 The code never sets it — lead/user only (tests/test_sp_ladder.py fixes the absence of a writer).",
+  "_cost_status": "🔴 [ESTIMATE — DERIVED STACK] 10/70/227 raw-KNL core-h (§R39.26). No standalone single point has ever been measured on this project; the first rung to return IS that measurement and later rungs must be re-derived from it (§39.48(e)). Tolerable unmeasured only because 307 against a 21,000 guard survives a ~25x error — down from ~80x before engineer8's reprice.",
+  "replan_trigger_factor": 3.0,
+  "_replan_trigger_why": "🔴 [§R39.28] n=4 breaches its cap at 5.9x and n=3 at 13.5x, where `links` doubles and the ceiling jumps; 3x is half the distance to the nearer cliff. Fires BEFORE submitting the remaining rungs, not after."
+ },
+ "epsinf_bracket": {
+  "_doc": "🔴 [§39.73] G16's freq stage read the ABSENT EpsInf as the sentinel `EpsInf=0.0000` and aborted in L1110 — every frequency job this round: the endpoint certification AND all 20 of P5's. Zero frequencies exist anywhere in the round. The fix is a BRACKET, not a lookup: run both physically admissible ends (n^2 = 1, no fast response; n^2 = eps, fast response = full) and ask whether n_imag and the low-frequency spectrum move.",
+  "collapsed": false,
+  "_collapsed_note": "🔒 Same shape as the release gates. FALSE = both ends run (the default). Flipping it to a single run is a lead/user action and 🔴 the code never flips it. Deliberately not auto-collapsing on an observed invariance: an auto-collapse that never fires makes a one-time 800–2,600 core-h measurement a permanent silent tax; one that fires on a false-positive leaves the question under-verified. Both directions are already on this project's record.",
+  "_why_parallel": "🔴 [engineer8] The two ends run as separate PARALLEL tasks, never one job computing both serially — a serial pair doubles that task's wall and breaches endpoint_prep's ratified 6 h cap and P5's array convention.",
+  "_cost": "endpoint ≈40–130 core-h extra (trivial against 384). P5's 20 species ≈800–2,600 core-h extra — that is the number that makes the design choice matter. (a) and (b) cost the same core-h; (a) wins on SCHEDULE because it rides an already-submitted batch instead of paying this site's small-job queue-wait tax."
+ },
+ "epsilon_scan": {
+  "_doc": "§1.6's ε SENSITIVITY SCAN. 🟢 RIDES ON B0-F -- no separate tranche, no new cost line.",
+  "_ruling": "lead relaying proposer5, 2026-08-19. Scope is REACTIONS, not species: ε sensitivity is a property of a reaction. engineer5 CHECKED rather than assumed and priced it at ZERO -- it runs on geometries B0-F has already computed.",
+  "_run_it_first": "🔴 ORDERING RULING: run this BEFORE anyone sources SMD descriptors. If the conclusions are insensitive to ε, the mixing approximation does not matter and precise descriptors are not worth buying.",
+  "epsilon_values": [
+   3.0,
+   20.0,
+   90.0
+  ],
+  "_epsilon_meaning": {
+   "3.0": "≈ pure EMC",
+   "20.0": "≈ the nominal EC:EMC 3:7 mixture",
+   "90.0": "≈ pure EC"
+  },
+  "_the_design_point": "🔴 THE TRUE MIXTURE VALUE MUST LIE BETWEEN THE TWO PURE COMPONENTS. ⟹ we do not need to know the correct mixed ε in order to BOUND the error of not knowing it. If ΔG‡ moves < 0.05 eV between ε = 3 and ε = 90, no descriptor precision matters at all and §39.26(b) collapses entirely.",
+  "states": [
+   "reactant",
+   "ts",
+   "product"
+  ],
+  "_cost": "3 reactions × 3 states × 3 ε = 27 single points on ALREADY-COMPUTED geometries. Essentially free. engineer5: adds ZERO.",
+  "decision_threshold_ev": 0.05,
+  "_limits_to_carry_in_the_output": [
+   "🔴 SP-only measures the ELECTROSTATIC response AT FIXED GEOMETRY. A SMALL spread BOUNDS the full response; a LARGE one DOES NOT. If it exceeds 0.05 eV, escalate to re-optimisation on ONE reaction -- do not read a large SP-only spread as the answer.",
+   "🔴 ε bounds the dominant term but NOT the CDS term, which is driven by surface tension. Record that as a RESIDUAL; bracket it later with two built-in solvents spanning the expected γ. It is not covered by this scan and must not be claimed to be."
+  ]
+ }
+}

@@ -1,0 +1,27 @@
+#!/bin/bash
+# sei_pilot_package — 스케줄러 없음(nohup 순차 실행) 백엔드
+# 자원 요청 지시자가 없으므로 wall 가드는 payload/common.sh의 timeout이 강제한다.
+set -u
+
+# [critic9 §5] 용매 정책의 env 주입 채널은 테스트용 — 잡 안에서는 config 만 정본이다.
+unset SEI_SOLVENT_POLICY_JSON 2>/dev/null || true
+unset SEI_C8_ENDPOINTS_JSON 2>/dev/null || true
+unset SEI_QC_MODREDUNDANT_FILE 2>/dev/null || true
+# 🔴 [critic9 BLOCKER] SEI_QC_PURPOSE=smoke 가 제출 환경에서 상속되면 본계산
+# payload 전부가 smoke 로 위장해 deck_verified 게이트를 통과한다 — 이 게이트는
+# 미검증 덱에서 8,000+ core-h 를 지키는 유일한 것이다. 잡 시작 시 반드시 끊는다.
+unset SEI_QC_PURPOSE 2>/dev/null || true
+
+{{ENV_EXPORTS}}
+export SEI_KEY="{{KEY}}"
+export SEI_LOGICAL_KEY="{{LOGICAL_KEY}}"
+export SEI_JOB_DIR="{{JOB_DIR}}"
+export SEI_NODES="{{NODES}}"
+export SEI_CORES_PER_NODE="{{CORES_PER_NODE}}"
+export SEI_TOTAL_CORES="{{TOTAL_CORES}}"
+export SEI_WALL_HMS="{{WALL_HMS}}"
+export SEI_SCHEDULER="none"
+export SEI_JOBID="local-$$"
+
+source "${SEI_PKG_ROOT}/payload/common.sh"
+sei_job_main bash "{{CMD_FILE}}"

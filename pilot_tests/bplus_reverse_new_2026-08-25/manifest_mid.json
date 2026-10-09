@@ -1,0 +1,70 @@
+{
+ "purpose": "B+ terminal optimizations closing U-56a condition 7's reverse branch (02_METHOD_SPEC.md §39.131) -- NOT a production job, not wired into any plan Item, not submitted by this script",
+ "source_irc_log": "/home/yanselmo/0_claude_projects/sei_formation/pilot_tests/candidate_b_reverse_stepsize_2026-08-25/irc_stepsize_probe.log",
+ "same_route_family_as": "cpu_machine_pilot_results/sei_pilot_work/jobs/U56_RA_scan/bplus_reverse_{mid,last}.gjf (verified: same functional/basis/solvent/opt=loose settings, only the starting geometry differs)",
+ "picked_by": "guards.bplus_sample_points() run directly against this log's own parse_irc_path_frames() output, cross-checked against proposer13's independently-derived §39.131 values (both matched exactly)",
+ "post_run_computation": "bplus.agreement and reactant_match(last) are NOT computed by this tool -- see this out-dir's README for exact instructions to run the SAME existing code (sei_pilot.guards.bplus_agreement, sei_pilot.guards.reactant_match, both called from payload/U56.sh:1070-1152's own post-processing block) against these two jobs' returned logs.",
+ "eulerpc_dvv_status": "MOOT for this question, §39.131(4) -- the corrector-non-convergence failure mode those two backup tiers hedge against did not recur in the 70-point walk these B+ jobs start from; neither would answer a basin-connectivity question (what B+ tests) differently from StepSize even if B+ disagrees.",
+ "charge": 0,
+ "multiplicity": 2,
+ "level": "3",
+ "tag": "mid",
+ "point_number": 35,
+ "arc": 2.38953,
+ "geometry_file": "bplus_reverse_mid.xyz",
+ "deck_file": "bplus_reverse_mid.gjf",
+ "deck_meta": {
+  "route": "#p nosymm wB97XD/gen scrf=(pcm,solvent=acetone,read) opt=(loose,maxcycles=100) Int(Grid=UltraFine)",
+  "mem_gb": 4,
+  "nprocshared": 64,
+  "n_structures": 1,
+  "chk_file": "bplus_reverse_mid.chk",
+  "modredundant_lines": [],
+  "solvent_extra_input_lines": [
+   "eps=18.5"
+  ],
+  "solvent_deck_label": "[UNVERIFIED — cluster route smoke required]",
+  "level": "level3",
+  "level_label": "G-3",
+  "job_type": "endpoint_opt_rough",
+  "level_status": "✅ engineer RT-1b(§R16.6) 사양. ADR-032 composite 의 값싼 층.",
+  "basis_real_name": "def2-SVPD",
+  "basis_file": "inputs/basis/def2-SVPD.gbs",
+  "elements_in_molecule": [
+   "C",
+   "O",
+   "H",
+   "Li"
+  ],
+  "elements_in_basis": [
+   "H",
+   "Li",
+   "C",
+   "O",
+   "F",
+   "P"
+  ],
+  "elements_emitted": [
+   "C",
+   "O",
+   "H",
+   "Li"
+  ],
+  "has_ecp": false
+ },
+ "route": "#p nosymm wB97XD/gen scrf=(pcm,solvent=acetone,read) opt=(loose,maxcycles=100) Int(Grid=UltraFine)",
+ "level_label": "G-3",
+ "provenance": {
+  "package_name": "sei_pilot_package",
+  "package_version": "0.1.0",
+  "package_fingerprint": "758a31443e7d0ebd",
+  "schema_version": "1.1",
+  "schema_base_version": "1.0",
+  "generated_at_utc": "2026-08-25T06:46:52Z",
+  "generated_at_epoch": 1787640412,
+  "python_version": "3.14.6",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "random_seed": null,
+  "invocation": "tools/build_u56_bplus_reverse_opt.py --irc-log /home/yanselmo/0_claude_projects/sei_formation/pilot_tests/candidate_b_reverse_stepsize_2026-08-25/irc_stepsize_probe.log --out-dir /home/yanselmo/0_claude_projects/sei_formation/pilot_tests/bplus_reverse_new_2026-08-25 --total-cores 64"
+ }
+}

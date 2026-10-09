@@ -1,0 +1,212 @@
+{
+  "_doc": "QC 코드별 레벨(범함수/기저) 정의 — 🔴 단일 출처. 셸에 하드코딩 금지.",
+  "_why": "wb97x-d3(pyscf에 없는 이름)를 셸에 박아 두었다가 SCF를 시작하고 나서야 터졌다. 이름은 설정으로 빼고, 실행 전 사전검증한다.",
+  "schema_version": "1.0",
+  "_status": "✅ [RESOLVED] lead 확정: G-1 = wB97XD / def2-TZVPPD / SMD, G-2(폴백) = wB97XD / def2-TZVPD. 두 기저 모두 G16 내장 키워드가 아니므로 `gen` + 동봉 기저 파일(inputs/basis/)로 넣는다.",
+  "gaussian16": {
+    "level1": {
+      "label": "G-2",
+      "functional": "wB97XD",
+      "basis": "gen",
+      "basis_real_name": "def2-TZVPD",
+      "basis_file": "inputs/basis/def2-TZVPD.gbs",
+      "_status": "✅ lead 확정 (폴백 레벨). `--level g2` 로 이걸 주 레벨로 쓸 수 있다.",
+      "_note": "값싼 레벨. P1b/P5의 단가비 분모.",
+      "_solvent_note": "solvent_line 은 제거됐다(ADR-105). 용매는 solvent_policy 를 통해 sei_pilot/solvent.py resolve_solvent_line() 한 곳에서만 온다."
+    },
+    "level2": {
+      "label": "G-1",
+      "functional": "wB97XD",
+      "basis": "gen",
+      "basis_real_name": "def2-TZVPPD",
+      "basis_file": "inputs/basis/def2-TZVPPD.gbs",
+      "_status": "✅ lead 확정 (주 레벨). 이전의 미확정 표시는 해제됐다.",
+      "_note": "주 레벨. P5 단가 곡선의 기준.",
+      "_solvent_note": "solvent_line 은 제거됐다(ADR-105). 용매는 solvent_policy 를 통해 sei_pilot/solvent.py resolve_solvent_line() 한 곳에서만 온다."
+    },
+    "job_types": {
+      "sp": "#p {functional}/{basis} {solvent} sp Int(Grid=UltraFine)",
+      "force": "#p {functional}/{basis} {solvent} force Int(Grid=UltraFine)",
+      "freq": "#p nosymm {functional}/{basis} {solvent} freq Int(Grid=UltraFine)",
+      "opt": "#p nosymm {functional}/{basis} {solvent} opt Int(Grid=UltraFine)",
+      "opt_freq": "#p nosymm {functional}/{basis} {solvent} opt freq Int(Grid=UltraFine)",
+      "opt5": "#p nosymm {functional}/{basis} {solvent} opt=(maxcycles=5) Int(Grid=UltraFine)",
+      "ts_opt": "#p nosymm {functional}/{basis} {solvent} opt=(ts,calcfc,noeigentest,maxcycles=100) freq Int(Grid=UltraFine)",
+      "relaxed_scan": "#p nosymm {functional}/{basis} {solvent} opt=(modredundant,maxcycles=100) Int(Grid=UltraFine)",
+      "irc_forward": "#p nosymm {functional}/{basis} {solvent} irc=(calcfc,forward,recorrect=never,maxpoints=30) Int(Grid=UltraFine)",
+      "irc_reverse": "#p nosymm {functional}/{basis} {solvent} irc=(calcfc,reverse,recorrect=never,maxpoints=30) Int(Grid=UltraFine)",
+      "irc_forward_rcfc": "#p nosymm {functional}/{basis} {solvent} irc=(rcfc,forward,recorrect=never,maxpoints=30) Int(Grid=UltraFine)",
+      "irc_reverse_rcfc": "#p nosymm {functional}/{basis} {solvent} irc=(rcfc,reverse,recorrect=never,maxpoints=30) Int(Grid=UltraFine)",
+      "ts_qst2": "#p nosymm {functional}/{basis} {solvent} opt=(qst2,calcfc,noeigentest,maxcycles=100) freq Int(Grid=UltraFine)",
+      "ts_opt_from_guess": "#p nosymm {functional}/{basis} {solvent} opt=(ts,calcfc,noeigentest,maxcycles=100) freq Int(Grid=UltraFine)",
+      "endpoint_opt_rough": "#p nosymm {functional}/{basis} {solvent} opt=(loose,maxcycles=100) Int(Grid=UltraFine)",
+      "endpoint_opt_freq": "#p nosymm {functional}/{basis} {solvent} opt=(tight,calcfc,maxcycles=200) freq Int(Grid=UltraFine)",
+      "freq_smoke_legacy_generic": "#p nosymm {functional}/{basis} {solvent_legacy_generic_epsinf} freq Int(Grid=UltraFine)",
+      "opt_noneq_write": "#p {functional}/{basis} {solvent_noneq_write} opt",
+      "sp_noneq_read": "#p {functional}/{basis} {solvent_noneq_read} sp",
+      "sp_eq": "#p {functional}/{basis} {solvent} sp",
+      "opt_noneq_write_pcm": "#p {functional}/{basis} {solvent_noneq_write_pcm} opt",
+      "sp_noneq_read_pcm": "#p {functional}/{basis} {solvent_noneq_read_pcm} sp",
+      "sp_eq_pcm": "#p {functional}/{basis} {solvent_eq_pcm} sp",
+      "stability_test": "#p nosymm {functional}/{basis} {solvent} stable=opt Int(Grid=UltraFine)"
+    },
+    "_irc_recorrect_default_note": "🟢 [§39.136(2), 02_METHOD_SPEC.md, proposer13 ruled/engineer14 concurred, S3 wave-1] `recorrect=never` added to `irc_forward`/`irc_reverse` as the PRODUCTION DEFAULT for every future fresh (non-restart) IRC job, project-wide -- NOT scoped to any single reaction. Basis: `recorrect=never` is the proven fix for the corrector-oscillation crash that killed both R-A arms under the original (default-recorrection) setting, confirmed at DEFAULT step size by stage4 (§39.125) -- cheap, no point-count multiplier, unlike `StepSize=2`/`f=0.20` (adopted ONLY as a per-direction escalation if that direction's own IRC shows a `Bulirsch-Stoer... not Converging` warning, never as a blanket default: ~5x the points/core-h for the same arc). `maxpoints=30` stays explicit and unchanged -- already satisfies §39.136(2)'s \"EXPLICIT maxpoints\" requirement, this route is built via `qc_adapter.sh`'s `sei_qc_input` reading straight from this fixed template, not any per-tool builder default that could silently omit it. 🔴 [critic17, wave-1 review #2 -- corrects this note's own earlier scoping] Also applied to `irc_forward_rcfc`/`irc_reverse_rcfc`: the corrector-oscillation failure mode is a property of the CORRECTOR, not of where the Hessian came from (fresh CalcFC vs. read-from-.chk/rcfc) -- an initial 'restart jobs are structurally different, leave them out' scoping was wrong and has been reverted. See `_irc_rcfc_note` below: the rcfc switch is OFF today (`irc_hessian_source=calcfc`, confirmed in `config/b0_reactions.json`), so wave-1 was never exposed to this gap, but leaving it unfixed would have handed whoever flips that switch the exact default corrector that killed both R-A arms, with nothing to flag it.",
+    "_stability_test_note": "🔴 [linear-hopping-frog plan, Track A item 2, coder] Diagnostic ONLY -- single-point wavefunction stability test (Gaussian's `stable=opt`), NOT a production job_type wired into any plan Item. Built to tell apart a genuine SCF/orbital instability from a basis-linear-dependency artifact along `U56_RA_scan`'s IRC (recurring `largest beta MO coefficient` warning, 32-39, worsening along the path). No opt/freq: cheap by design. See tools/build_u56_ra_stability_probe.py. 🔴 [critic14] `nosymm` here is NOT the geometry-drift reason `_nosymm_requirement` documents for the opt family (this route never moves the nuclei) -- it is a DIFFERENT, stability-specific reason: if G16 detects point-group symmetry in the input orientation, it can restrict the stability search to symmetry-adapted rotations of the wavefunction, missing a symmetry-LOWERING instability -- exactly the false-negative direction proposer10's falsifiability statement (39.113(e)) depends on being absent. The source IRC geometry was itself computed under `nosymm` (relaxed_scan/irc_forward are both in `_nosymm_required_job_types`); the probe must not silently reintroduce symmetry the geometry's own generation excluded.",
+    "solvent_policy": {
+      "_doc": "🔴 C-5 의 단일 결정 지점 입력(ADR-104/105/106). 여기의 model/epsilon 만이 덱의 용매를 정한다 — 레벨별 solvent_line 하드코딩은 ADR-066/067 사고 (acetonitrile ε 35.7, 14,464 core-h)의 경로였고 제거됐다.",
+      "model": "pcm_numeric",
+      "epsilon": 18.5,
+      "_model_values": "null=미결정(모든 덱 거부) | smd_descriptors(SMD 기술자 테이블 필요, 현재 비어 있어 역시 거부) | pcm_numeric(ADR-104/108 의 PCM ε — deck_verified=false 인 동안 route smoke 경로만 통과)",
+      "_epsilon_note": "숫자만. 용매 이름 금지(ADR-104). 18.5 = EC/EMC 3:7 관례값 [USER-DOMAIN, ADR-106/108 — 사용자 승인, 재도출 금지].",
+      "deck_verified": false,
+      "_deck_verified_note": "🔒 [P-0 §4] false 인 동안 pcm_numeric 후보 덱은 sei_qc_smoke 경로만 통과하고 본계산(P1/P1b/P5/endpoint_prep)은 거부된다. 클러스터 route smoke 통과 확인 후 lead/사용자가 true 로 올린다. 후보 덱 라벨: solvent.UNVERIFIED_DECK_LABEL."
+    },
+    "basis_policy": {
+      "_doc": "🔴 `def2TZVPPD`/`def2TZVPD` 는 G16 내장 키워드가 아니다. route 에 `gen` 을 쓰고 좌표 뒤에 동봉 기저 블록을 붙인다.",
+      "_preflight": "검증할 것은 '키워드가 유효한가'가 **아니라** '동봉 블록이 이 분자의 등장 원소를 전부 덮는가'다. 안 덮으면 본계산에서 죽는다.",
+      "elements_required": [
+        "C",
+        "H",
+        "O",
+        "Li",
+        "P",
+        "F"
+      ],
+      "ecp_needed": false,
+      "source": "Basis Set Exchange, gaussian94 형식, version 1",
+      "files": {
+        "def2-TZVPPD": {
+          "path": "inputs/basis/def2-TZVPPD.gbs",
+          "bytes": 6689,
+          "sha256": "6b4055ad7ac97321c22ae5d3560d4dfe587753c2d127f7aadc413e0f8f02faaf"
+        },
+        "def2-TZVPD": {
+          "path": "inputs/basis/def2-TZVPD.gbs",
+          "bytes": 6516,
+          "sha256": "218a34402c62e9fcad0640026225bf9d465d7fc06c7c895cd6b3cb7787441a73"
+        },
+        "def2-SVPD": {
+          "path": "inputs/basis/def2-SVPD.gbs",
+          "bytes": 4527,
+          "sha256": "722348893716cde18f412a019f056466c7bb5ebcb018ff291f2f5b7a072842de"
+        },
+        "def2-TZVPP": {
+          "path": "inputs/basis/def2-TZVPP.gbs",
+          "bytes": 6051,
+          "sha256": "6a970c2f8433f23df7f1c55c3771f06be96c491cb2e4c4786c3fd3501f3fff2f"
+        }
+      },
+      "_levels_using_gen": [
+        "level1",
+        "level2",
+        "level3",
+        "level4_gen"
+      ]
+    },
+    "_ts_method": "🔴 [내 결정 — proposer 확인 요망] ORCA 판 P1 은 NEB-TS(반응물↔생성물 양끝단)를 썼다. G16 에는 NEB 가 없다. 가장 가까운 양끝단 대응이 QST2 이므로 그것으로 포팅했고, 실패하면 반응물 기하에서 opt=(ts,calcfc) 단끝단으로 폴백한다. 어느 경로를 탔는지는 ts_method.json 에 기록된다. P1 의 목적은 'TS 1건 완주 단가' 측정이므로 두 경로 모두 그 목적을 만족하지만, 단가는 경로에 따라 달라진다 — 회신 해석 시 반드시 함께 읽어라.",
+    "_pair_job_types": [
+      "ts_qst2"
+    ],
+    "_nosymm_required_job_types": [
+      "opt", "opt_freq", "freq", "opt5",
+      "ts_opt",
+      "ts_qst2",
+      "ts_opt_from_guess",
+      "irc_forward",
+      "irc_reverse",
+      "endpoint_opt_rough",
+      "endpoint_opt_freq",
+      "relaxed_scan",
+      "irc_forward_rcfc",
+      "irc_reverse_rcfc"
+    ],
+    "_relaxed_scan_note": "🔴 [U56-2, §39.39(d)/(h)] relaxed scan = scan → opt=ts → freq → IRC 체인의 scan 단계. G16 은 opt=modredundant + 추가 입력 섹션의 `B i j S N step` 줄로 relaxed surface scan 을 돈다. 좌표(어느 결합을 얼마나)는 이 route 가 아니라 **deck builder(sei_pilot/b0f_deck.py)가 role→index mapping(§39.26(d))에서 만든 ModRedundant 섹션**으로 온다 — 원자 index 를 config/route 에 박는 것이 금지이기 때문이다('BY CHEMICAL ROLE, NEVER BY ATOM INDEX', b0_reactions.json). nosymm 은 §39.39(b) 조건 2(인증된 끝단에서 출발하는 모든 route).",
+    "_grid_parity_note": "🔴 [§39.41(b), proposer7/lead 2026-08-20] Int(Grid=UltraFine) 는 TS/IRC family 전체(ts_opt, ts_opt_from_guess, ts_qst2, irc_forward/reverse(+_rcfc), relaxed_scan)에 endpoint_* route 와 동일하게 들어간다 — C-8.1: grid 가 다르면 다른 표면이고, 다른 표면의 n_imag==0 은 우리가 인증한 그 표면의 사실이 아니다. nosymm 누락과 같은 결함 부류, 같은 발견 방법(아티팩트 직접 읽기). tests/test_endpoint_route_parity.py 가 TS/IRC route 까지 surface token 동일성을 고정한다.",
+    "_irc_rcfc_note": "🔴 [engineer7 §R39.15 item 4a / §R39.17 §4, lead 2026-08-20] irc_*_rcfc = TS 잡의 **freq 단계**(수렴된 TS 의 Hessian, guess 기하의 CalcFC 아님)가 남긴 .chk 를 읽는 절감 route (11원자 80–260, 21원자 ~1,630 core-h/attempt). 🔴 스위치는 꺼져 있다(b0_reactions.json u56_2.irc_hessian_source=calcfc): dev box 에 G16 이 없어 rcfc 경로가 미검증이라 다음 제출의 route smoke 이후 lead 가 켠다. .chk 이관 배관(per-task 격리 포함)은 payload/U56.sh 에 이미 있다 — 켜면 그대로 동작해야 한다.",
+    "_freq_smoke_legacy_note": "[lead/user 2026-08-21, H2 3-deck smoke] `freq_smoke_legacy_generic` is SMOKE-ONLY: solvent.py raises SolventUndecided for it under purpose=production. It reproduces the abandoned generic+eps+EpsInf deck on H2 next to the acetone production deck so the two PCM parameter blocks, G(cav/disp/rep) terms and frequencies can be compared in one returned tree (decides whether the old generic certificate transfers, and the cost of the endpoint re-cert).",
+    "_nosymm_p5_note": "🔴 [§39.89, proposer8, 2026-08-21] opt/opt_freq/freq/opt5 joined the list: all 22 P5 decks of the returned round lacked nosymm and Int(Grid=UltraFine) (the endpoint deck had both). One row (li_ec_radical_s0_L2) converged to an exactly planar structure (0.0000 Å heavy-atom deviation) -- the C-9/ADR-066 pathology that killed P1, now in P5. Applies to FUTURE decks only; the stored P5 geometries are NOT re-optimised (the freq-only recovery's n_imag is the audit that finds the symmetry-trapped rows). sp/force also carry Int(Grid=UltraFine) [proposer8 2026-08-21]: r_composite = (cheap opt+freq + high SP)/(cheap opt+freq) is a ratio between two METHODS if its halves use different grids, and the composite SP is a load-bearing energy. 🔴 Any r_composite/r_high measured before this change is NOT comparable to one measured after (none were -- P1b's freq halves died, §39.75).",
+    "_nosymm_requirement": "🔴 B-2 (HANDOFF_CODER6 §B-2 / docs/05_STATE.md §0-k). Gaussian does not merely fail to break a degenerate starting guess -- it ACTIVELY RE-DETECTS the molecular point group and CONSTRAINS the optimisation to it. `guards.py`'s C-9 remedy (an explicit out-of-plane perturbation, `perturb_out_of_plane`) is INSUFFICIENT on its own for G16: perturbing an atom off a symmetry element accomplishes nothing if G16 re-detects the group within its own tolerance and re-imposes it on the very first optimisation step. Every job_type in `_nosymm_required_job_types` starts a TS search from a guess that may rely on that perturbation, or continues an IRC from a TS that does -- both must carry `nosymm` explicitly, not rely on the starting geometry alone. Cost: `nosymm` gives up the symmetry speedup, which is ZERO for a genuinely asymmetric species -- i.e. it costs nothing except on exactly the pathological (falsely-symmetric) cases this exists to guard against. 🔴 Do NOT read `nosymm`'s presence or absence off any ALREADY-STORED route string without first checking `route_echoed_is_complete` (criteria/g16.py, B-1) -- RT-1's three stored TS/IRC routes are truncated at 70 columns with no marker, and `nosymm`'s status on that run is [UNKNOWN], not absent. 🔴 ADR-099: `endpoint_opt_rough`/`endpoint_opt_freq` are in this list for the SAME reason as the TS routes above -- §0-g measured that a tight optimisation moves every interatomic distance and does NOT break an exact degeneracy, so a rough stage run without `nosymm` lets G16 re-impose the point group at step 1, and a certified-converged tight stage 2 would then certify the WRONG structure while every log says 'converged'.",
+    "_endpoint_two_stage": {
+      "_doc": "🔴 ADR-099 (user, direct ruling) / §39.32(h) (proposer6). Two-stage endpoint preparation for payload/P1.sh's reactant and product: STAGE 1 rough/loose optimisation (get into the basin cheaply), STAGE 2 tight opt+freq FROM stage 1's converged geometry (the certification). This does NOT relax C-8/C-8.1-8.3 -- the certification is still `endpoint_opt_freq` with n_imag == 0 at the level the TS search runs at; stage 1 is a cheaper approach to the same endpoint, not a substitute for it.",
+      "perturbation": "the C-9 out-of-plane perturbation (guards.perturb_out_of_plane) is applied ONCE, BEFORE stage 1, and is NOT re-applied between stage 1 and stage 2 -- re-kicking a geometry that stage 1 already converged would displace it off a real minimum, which is a worse error than the one being guarded against. If stage-1 exit is STILL on the symmetry element despite the kick and `nosymm` (i.e. `nosymm` was lost -- B-2), the correct response at stage 2 is its own CalcFC imaginary eigenvector, a MEASURED direction, strictly better than another random kick -- not implemented as an automatic restart here (see H-5/C-8 escalation in HANDOFF_CODER8.md), but the diagnosis (`stage1_exit_structural_set`'s point-group fingerprint) is emitted so a human/later automation can act on it. Both stages carry `nosymm` regardless (see _nosymm_required_job_types above) -- the perturbation and nosymm are two different, both-necessary defences against the same failure mode.",
+      "job_structure": "2 PBS jobs per attempt (one per endpoint: reactant, product), submitted in PARALLEL. EACH job runs stage 1 then stage 2 internally, sequentially -- the stage1->stage2 handoff is a file read (stage 1's converged geometry becomes stage 2's input), not a separate resource request, so it is NOT a third job.",
+      "budget_h": 6.0,
+      "budget_core_h": 384.0,
+      "budget_note": "cumulative across BOTH internal stages, per endpoint -- same cap that already covers restarts elsewhere in this package. A wall-clock abort during either stage records which stage was running at kill (`stage1_budget_exhausted` / `stage2_budget_exhausted`, never collapsed into one token) and is NEVER recorded as `non_converged` -- a wall-clock abort is an EXECUTION fact, convergence is a CHEMICAL fact (C-2's principle, a fourth instance).",
+      "_rough_level_status": "✅ [RULED, Q2, proposer6/§39.38] rough runs at the SAME level (functional/basis/solvent/grid) as tight -- only the convergence thresholds move (opt=loose,maxcycles=100 vs opt=tight,calcfc,maxcycles=200). There is therefore no separate 'rough_level' key: the endpoint script passes the SAME level key to both `endpoint_opt_rough` and `endpoint_opt_freq`. Rationale (recorded here, not restated by whoever reads it later): (i) a cheaper rough surface can order near-degenerate coordination isomers differently, stage 1 SELECTS a basin on that surface, stage 2 then certifies honestly INSIDE it -- n_imag==0 is true and every internal check is consistent, so the wrong-minimum error is invisible; Li+ coordination isomers (U-55) sit closer together than any cheap surface's own error. (ii) stage 1 produces a GEOMETRY (no claim); stage 2 produces the CERTIFICATE -- same-level costs nothing extra because stage 1 was already going to be re-optimised at tight thresholds regardless. (iii) `nosymm` on BOTH stages (not same-level) is what actually prevents the wrong-surface failure now -- a symmetric stage 1 costs a restart at tight price, not correctness, PROVIDED `nosymm` survived stage 1. That is exactly why `nosymm` is required and checked on `endpoint_opt_rough` too, not only `endpoint_opt_freq` -- 'it's only a rough opt' is the sentence that most easily forgets it.",
+      "f1_observables": "src/pilot_package/config/f1_required_observables.json -- the binding emit-list. A merged pilot that reports only cost and convergence has NOT run F1."
+    },
+    "level3": {
+      "label": "G-3",
+      "functional": "wB97XD",
+      "basis": "gen",
+      "basis_real_name": "def2-SVPD",
+      "basis_file": "inputs/basis/def2-SVPD.gbs",
+      "_status": "✅ engineer RT-1b(§R16.6) 사양. ADR-032 composite 의 값싼 층.",
+      "_note": "🔴 composite 의 **기하 + Hessian** 레벨. P5/S2-A 전 pool thermo 의 실제 단가.",
+      "_solvent_note": "solvent_line 은 제거됐다(ADR-105). 용매는 solvent_policy 를 통해 sei_pilot/solvent.py resolve_solvent_line() 한 곳에서만 온다."
+    },
+    "level4_gen": {
+      "label": "G-4gen",
+      "functional": "wB97XD",
+      "basis": "gen",
+      "basis_real_name": "def2-TZVPP",
+      "basis_file": "inputs/basis/def2-TZVPP.gbs",
+      "_status": "✅ 보조 — gen 오버헤드 측정 전용. 과학 결과용이 아니다.",
+      "_note": "gen 경로로 넣은 def2-TZVPP. 내장 키워드판과 **같은 기저**다.",
+      "_solvent_note": "solvent_line 은 제거됐다(ADR-105). 용매는 solvent_policy 를 통해 sei_pilot/solvent.py resolve_solvent_line() 한 곳에서만 온다."
+    },
+    "level4_builtin": {
+      "label": "G-4builtin",
+      "functional": "wB97XD",
+      "basis": "def2TZVPP",
+      "_status": "✅ 보조 — G16 **내장 키워드**. gen 판과 비교해 gen 오버헤드만 뽑는다.",
+      "_note": "내장 키워드이므로 basis_file 이 없다(동봉 기저를 쓰지 않는다).",
+      "_solvent_note": "solvent_line 은 제거됐다(ADR-105). 용매는 solvent_policy 를 통해 sei_pilot/solvent.py resolve_solvent_line() 한 곳에서만 온다."
+    },
+    "_composite": {
+      "_doc": "🔴 ADR-032 composite 단가비 r_composite 측정 (engineer §R16.6 RT-1b).",
+      "definition": "opt+freq @ G-3(def2-SVPD) // SP @ G-1(def2-TZVPPD)",
+      "r_composite": "(cost(A) + cost(C)) / cost(A),  A=G-3 opt+freq,  C=G-1 SP on A 기하",
+      "r_high": "cost(B) / cost(A),  B=G-1 opt+freq (전량 고수준)",
+      "gen_penalty": "cost(G-4gen SP) / cost(G-4builtin SP) — **같은 기저**, gen 경로만 다르다",
+      "diffuse_penalty": "cost(G-1 SP) / cost(G-4gen SP) — 둘 다 gen. diffuse 함수만 다르다",
+      "_why_split": "🔴 engineer 는 '내장 def2TZVPP vs gen def2TZVPPD' 로 적었는데 그 비교는 gen 오버헤드와 diffuse 비용을 **섞는다**. 같은 기저를 두 경로로 넣어 gen 만 분리하고, diffuse 는 gen 안에서 따로 뺀다. 요청한 '분리'가 그렇게 해야 실제로 이뤄진다.",
+      "adr032_rule": "|ΔG(composite − 전량고수준)| < 0.05 eV 채택 / 0.05~0.1 채택+σ_r 상향 / ≥ 0.1 불가",
+      "_who_decides": "🔴 판정은 우리가 하지 않는다. 원자료(ΔG 3종)를 넘긴다."
+    },
+    "_u27_noneq_smoke": {
+      "_doc": "🔴 [U-27] G16 에서 `NonEq` 가 **SMD 와 결합해** 도는가. 실측 확인 대상.",
+      "why": "되면 λ_out 전체가 G16 단일점만으로 끝난다(proposer §30.1). 안 되면 IEFPCM 로 λ_out 만 분리한다. 지금 안 물으면 왕복 1회(달력 3.5일)를 더 쓴다.",
+      "procedure": [
+        "① 중성 N 평형 SMD 최적화 (NonEq=write)",
+        "② 같은 기하 환원종 R, NonEq=read → G_R^vert",
+        "③ 같은 기하 환원종 R 평형 SMD → G_R^eq",
+        "λ_out = G_R^vert − G_R^eq"
+      ],
+      "what_we_measure": "🔴 λ_out 값이 아니라 **이 루트가 도는가**. 물리 판정은 proposer 몫.",
+      "fallback": "SMD 가 거부되면 IEFPCM 로 같은 3단계를 재시도하고 어느 쪽이 통했는지 남긴다.",
+      "scope_guard": "대상 1종(P1b 가 쓰는 종 중 가장 작은 것). λ_out **본계산은 구현하지 않는다** — S1 파이프라인이고 착수 금지다.",
+      "chk_note": "NonEq=read 는 ①이 남긴 .chk 를 읽는다 → 같은 디렉터리·같은 basename 이어야 한다."
+    }
+  },
+  "orca": {
+    "level1": {
+      "functional": "wB97X-D3",
+      "basis": "def2-TZVP",
+      "_status": "[UNVERIFIED] ORCA는 이 클러스터에 없다. 다른 사이트용으로 유지."
+    },
+    "level2": {
+      "functional": "wB97X-V",
+      "basis": "def2-TZVPPD",
+      "_status": "[UNVERIFIED] ADR-029 기본값."
+    }
+  },
+  "resource_policy": {
+    "_doc": "🔴 G16은 %mem 부족 시 조용히 느려지는 게 아니라 죽는다(galloc). 프로브의 실측 RAM을 쓴다.",
+    "mem_fraction_of_node": 0.7,
+    "mem_floor_gb": 2,
+    "mem_cap_gb": 200
+  },
+  "_interpretation": "🔴 lead 지시는 'G-1 / G-2 두 레벨'이었고, 우리 payload 구조는 'level1(값싼) / level2(주)' 단가비 쌍이다. 매핑은 내가 정했다: level2 <- G-1(def2-TZVPPD, 주), level1 <- G-2(def2-TZVPD, 값싼/폴백). 근거는 TZVPD가 TZVPPD보다 작다는 것뿐이다. 이 매핑이 의도와 다르면 여기만 고치면 된다 — 셸에는 어디에도 박혀 있지 않다."
+}

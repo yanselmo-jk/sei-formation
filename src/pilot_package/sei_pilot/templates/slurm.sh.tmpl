@@ -1,0 +1,39 @@
+#!/bin/bash
+#SBATCH --job-name={{JOB_NAME}}
+#SBATCH --nodes={{NODES}}
+#SBATCH --ntasks-per-node={{CORES_PER_NODE}}
+#SBATCH --time={{WALL_HMS}}
+#SBATCH --output={{STDOUT}}
+#SBATCH --error={{STDERR}}
+{{PARTITION_LINE}}
+{{ACCOUNT_LINE}}
+{{QOS_LINE}}
+{{RESERVATION_LINE}}
+{{ARRAY_LINE}}
+{{GPU_LINE}}
+# sei_pilot_package — SLURM 백엔드
+# 이 스크립트는 멱등하다: 완료 마커가 있으면 즉시 종료한다(체인 링크 대비).
+set -u
+
+# [critic9 §5] 용매 정책의 env 주입 채널은 테스트용 — 잡 안에서는 config 만 정본이다
+# (SLURM 은 제출 환경을 기본 전파하므로 pbs.sh.tmpl 과 같은 이유로 끊는다).
+unset SEI_SOLVENT_POLICY_JSON 2>/dev/null || true
+unset SEI_C8_ENDPOINTS_JSON 2>/dev/null || true
+unset SEI_QC_MODREDUNDANT_FILE 2>/dev/null || true
+# 🔴 [critic9 BLOCKER] SEI_QC_PURPOSE=smoke 가 제출 환경에서 상속되면 본계산
+# payload 전부가 smoke 로 위장해 deck_verified 게이트를 통과한다 — 이 게이트는
+# 미검증 덱에서 8,000+ core-h 를 지키는 유일한 것이다. 잡 시작 시 반드시 끊는다.
+unset SEI_QC_PURPOSE 2>/dev/null || true
+
+{{ENV_EXPORTS}}
+export SEI_KEY="{{KEY}}"
+export SEI_LOGICAL_KEY="{{LOGICAL_KEY}}"
+export SEI_JOB_DIR="{{JOB_DIR}}"
+export SEI_NODES="{{NODES}}"
+export SEI_CORES_PER_NODE="{{CORES_PER_NODE}}"
+export SEI_TOTAL_CORES="{{TOTAL_CORES}}"
+export SEI_SCHEDULER="slurm"
+export SEI_JOBID="${SLURM_JOB_ID:-none}"
+
+source "${SEI_PKG_ROOT}/payload/common.sh"
+sei_job_main bash "{{CMD_FILE}}"
