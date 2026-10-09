@@ -30,6 +30,8 @@ src/pilot_package/vendor/xtb/bin/
 src/pilot_package/vendor/xtb/share/
 # bundled pilot_tests archives (extracted dirs are tracked minus scratch below)
 pilot_tests/*.tar.gz
+# pilot_tests result logs (inputs pbs/gjf/json/md stay tracked)
+pilot_tests/**/*.log
 
 # ---- Gaussian / xtb / CREST scratch ----
 *.chk
